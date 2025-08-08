@@ -25,6 +25,5 @@ Session.vim
 package-lock.json
 
 *.r1cs
-*.wasm
 *.ptau
 *.sym
