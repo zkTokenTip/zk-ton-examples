@@ -46,22 +46,15 @@ int bls_pairing(slice x1, slice y1, slice x2, slice y2, slice x3, slice y3, slic
 (int) groth16Verify(
     slice pi_a,
     slice pi_b,
-    slice pi_c
-,
+    slice pi_c,
     int pubInput0
-
 ) impure {
     int res = 0;
-
-
-    ;; cpub = sum_{i=1..nPublic} IC_i * pubInput(i-1)  +  IC_0
     slice cpub = bls_g1_multiexp(
         IC1, pubInput0,
         1
     );
-
     cpub = bls_g1_add(cpub, IC0);
-
 
     slice pi_a_neg = bls_g1_neg(pi_a);
     int a = bls_pairing(
@@ -77,7 +70,6 @@ int bls_pairing(slice x1, slice y1, slice x2, slice y2, slice x3, slice y3, slic
     } else {
         res = 1;
     }
-
     return (res);
 }
 
@@ -87,33 +79,25 @@ int bls_pairing(slice x1, slice y1, slice x2, slice y2, slice x3, slice y3, slic
     slice pi_a = in_msg_body~load_p1();
     slice pi_b = in_msg_body~load_p2();
     slice pi_c = in_msg_body~load_p1();
-
-
     int pubInput0 = in_msg_body~load_newint();
-
 
     return groth16Verify(
         pi_a,
         pi_b,
         pi_c,
-
         pubInput0
-
     );
 }
 
 () recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
-    if (in_msg_body.slice_empty?()) { ;; ignore all empty messages
+    if (in_msg_body.slice_empty?()) {
         return ();
     }
-
     slice cs = in_msg_full.begin_parse();
     int flags = cs~load_uint(4);
-    if (flags & 1) { ;; ignore all bounced messages
+    if (flags & 1) {
         return ();
     }
-
-    ;; by convention: op (32 bits) then query_id (64 bits)
     int op = in_msg_body~load_uint(32);
     int query_id = in_msg_body~load_uint(64);
 
@@ -121,24 +105,19 @@ int bls_pairing(slice x1, slice y1, slice x2, slice y2, slice x3, slice y3, slic
         int res = verify(in_msg_body);
         return ();
     }
-
-    throw(0xffff); ;; unknown op
+    throw(0xffff);
 }
 
 int get_verify(
     slice pi_a,
     slice pi_b,
     slice pi_c,
-
     int pubInput0
-
 ) method_id {
     return groth16Verify(
         pi_a,
         pi_b,
         pi_c,
-
         pubInput0
-
     );
 }

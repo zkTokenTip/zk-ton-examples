@@ -1,8 +1,7 @@
 # zk-ton-example
 
 This repository is currently under development and testing.
-It demonstrates how to integrate zero-knowledge proofs from Circom into the TON blockchain using smart contracts written in **FunC** and **Tolk**.
-Support for **Tact** is in progress.
+It demonstrates how to integrate zero-knowledge proofs from Circom into the TON blockchain using smart contracts written in **FunC**, **Tolk** and **Tact**.
 
 ## Project structure
 
@@ -45,4 +44,6 @@ cd ../..
 npx export-ton-verifier ./circuits/Multiplier/Multiplier_0001.zkey ./contracts/verifier.fc
 # export tolk contract
 npx export-ton-verifier ./circuits/Multiplier/Multiplier_0001.zkey ./contracts/verifier.tolk --tolk
+# export tact contract
+npx export-ton-verifier ./circuits/Multiplier/Multiplier_0001.zkey ./contracts/verifier.tact --tact
 ```

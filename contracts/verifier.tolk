@@ -26,7 +26,6 @@ fun blsG1Multiexp(
 fun blsPairing(x1: slice, y1: slice, x2: slice, y2: slice, x3: slice, y3: slice, x4: slice, y4: slice, n: int): int
     asm "BLS_PAIRING";
 
-
 fun slice.loadP1(mutate self): slice {
     var c: cell = self.loadRef();
     var s: slice = c.beginParse();
@@ -53,23 +52,15 @@ fun slice.loadNewint(mutate self): int {
 fun groth16Verify(
     piA: slice,
     piB: slice,
-    piC: slice
-,
+    piC: slice,
     pubInput0: int
-
 ): int {
     var res: int = 0;
-
-
-    // cpub = sum_{i=1..nPublic} IC_i * pubInput(i-1)  +  IC_0
     var cpub: slice = blsG1Multiexp(
         IC1, pubInput0,
         1
     );
-
     cpub = blsG1Add(cpub, IC0);
-
-
     var piANeg: slice = blsG1Neg(piA);
     var a: int = blsPairing(
         cpub,       vk_gamma_2,
@@ -78,75 +69,55 @@ fun groth16Verify(
         vk_alpha_1, vk_beta_2,
         4
     );
-
     if (a == 0) {
         res = 0;
     } else {
         res = 1;
     }
-
-    return (res);
+    return res;
 }
 
-fun verify(
-    inMsgBody: slice
-): int {
+fun verify(inMsgBody: slice): int {
     var piA: slice = inMsgBody.loadP1();
     var piB: slice = inMsgBody.loadP2();
     var piC: slice = inMsgBody.loadP1();
-
-
     var pubInput0: int = inMsgBody.loadNewint();
-
-
     return groth16Verify(
         piA,
         piB,
         piC,
-
         pubInput0
-
     );
 }
 
-// in the future, use: fun onInternalMessage(in: InMessage) {
 fun onInternalMessage(myBalance: int, msgValue: int, inMsgFull: cell, inMsgBody: slice) {
-    if (inMsgBody.isEmpty()) { // ignore all empty messages
+    if (inMsgBody.isEmpty()) {
         return;
     }
-
     var cs: slice = inMsgFull.beginParse();
     var flags: int = cs.loadUint(4);
-    if (flags & 1) { // ignore all bounced messages
+    if (flags & 1) {
         return;
     }
-
-    // by convention: op (32 bits) then query_id (64 bits)
     var op: int = inMsgBody.loadUint(32);
     var queryId: int = inMsgBody.loadUint(64);
-
     if (op == OP_VERIFY) {
         var res: int = verify(inMsgBody);
         return;
     }
-
-    throw 0xffff; // unknown op
+    throw 0xffff;
 }
 
 get fun get_verify(
     piA: slice,
     piB: slice,
     piC: slice,
-
     pubInput0: int
-
 ): int {
     return groth16Verify(
         piA,
         piB,
         piC,
-
         pubInput0
-
     );
 }
