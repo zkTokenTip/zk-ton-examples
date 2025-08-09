@@ -4,7 +4,7 @@
     "Verify": 89473
   },
   "codeSize": {
-    "verifier_func bits": 5346,
-    "verifier_func cells": 10
+    "verifier_tact bits": 5346,
+    "verifier_tact cells": 10
   }
 }

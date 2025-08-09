@@ -33,7 +33,7 @@ describe('Verifier_tact', () => {
 
         deployer = await blockchain.treasury('deployer');
 
-        GAS_LOG.rememberBocSize('verifier_func', verifier.init?.code!);
+        GAS_LOG.rememberBocSize('verifier_tact', verifier.init?.code!);
 
         const deployResult = await verifier.send(
             deployer.getSender(),
