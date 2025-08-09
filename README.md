@@ -3,6 +3,8 @@
 This repository is currently under development and testing.
 It demonstrates how to integrate zero-knowledge proofs from Circom into the TON blockchain using smart contracts written in **FunC**, **Tolk** and **Tact**.
 
+Gas cost tests have been performed, and the results are located in the `bench-snapshots` directory.
+
 ## Project structure
 
 - `contracts` - source code of all the smart contracts of the project and their dependencies.
