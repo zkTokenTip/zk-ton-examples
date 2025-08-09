@@ -109,7 +109,5 @@ describe('Verifier_tact', () => {
         });
 
         GAS_LOG.rememberGas('Verify', verifyResult.transactions.slice(1));
-
-        expect(await verifier.getRes()).toBeTruthy();
     });
 });

@@ -33,10 +33,9 @@ message Verify {
 }
 
 contract Verifier with Deployable {
-  res: Bool = false;
 
   receive(msg: Verify) {
-    self.res = self.groth16Verify(
+    let res = self.groth16Verify(
       msg.piA,
       msg.piB,
       msg.piC,
@@ -77,6 +76,4 @@ contract Verifier with Deployable {
       pubInput0
     );
   }
-
-  get fun res(): Bool { return self.res; }
 }

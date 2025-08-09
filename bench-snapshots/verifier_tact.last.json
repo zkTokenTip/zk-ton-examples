@@ -1,10 +1,10 @@
 {
   "gas": {
-    "Deploy": 4445,
-    "Verify": 89561
+    "Deploy": 4383,
+    "Verify": 89473
   },
   "codeSize": {
-    "verifier_func bits": 5633,
-    "verifier_func cells": 14
+    "verifier_func bits": 5346,
+    "verifier_func cells": 10
   }
 }
