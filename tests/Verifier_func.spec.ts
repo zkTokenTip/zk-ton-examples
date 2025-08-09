@@ -4,6 +4,8 @@ import { Verifier } from '../wrappers/Verifier';
 import '@ton/test-utils';
 import { compile } from '@ton/blueprint';
 
+import { GasLogAndSave } from './gas-logger';
+
 import '@ton/test-utils';
 import * as snarkjs from 'snarkjs';
 import path from 'path';
@@ -20,9 +22,15 @@ const zkeyPath = path.join(__dirname, '../circuits/Multiplier', 'Multiplier_0001
 
 describe('Verifier_func', () => {
     let code: Cell;
+    let GAS_LOG = new GasLogAndSave('verifier_func');
 
     beforeAll(async () => {
         code = await compile('Verifier_func');
+        GAS_LOG.rememberBocSize('verifier_func', code);
+    });
+
+    afterAll(() => {
+        GAS_LOG.saveCurrentRunAfterAll();
     });
 
     let blockchain: Blockchain;
@@ -44,6 +52,8 @@ describe('Verifier_func', () => {
             deploy: true,
             success: true,
         });
+
+        GAS_LOG.rememberGas('Deploy', deployResult.transactions.slice(1));
     });
 
     it('should verify', async () => {
@@ -83,5 +93,7 @@ describe('Verifier_func', () => {
             to: verifier.address,
             success: true,
         });
+
+        GAS_LOG.rememberGas('Verify', verifyResult.transactions.slice(1));
     });
 });

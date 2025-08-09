@@ -10,6 +10,7 @@ import path from 'path';
 
 // @ts-ignore
 import { buildBls12381, utils } from 'ffjavascript';
+import { GasLogAndSave } from './gas-logger';
 
 const { g1Compressed, g2Compressed } = require('export-ton-verifier');
 
@@ -20,9 +21,15 @@ const zkeyPath = path.join(__dirname, '../circuits/Multiplier', 'Multiplier_0001
 
 describe('Verifier_tolk', () => {
     let code: Cell;
+    let GAS_LOG = new GasLogAndSave('verifier_tolk');
 
     beforeAll(async () => {
         code = await compile('Verifier_tolk');
+        GAS_LOG.rememberBocSize('verifier_tolk', code);
+    });
+
+    afterAll(() => {
+        GAS_LOG.saveCurrentRunAfterAll();
     });
 
     let blockchain: Blockchain;
@@ -44,6 +51,8 @@ describe('Verifier_tolk', () => {
             deploy: true,
             success: true,
         });
+
+        GAS_LOG.rememberGas('Deploy', deployResult.transactions.slice(1));
     });
 
     it('should verify', async () => {
@@ -83,5 +92,7 @@ describe('Verifier_tolk', () => {
             to: verifier.address,
             success: true,
         });
+
+        GAS_LOG.rememberGas('Verify', verifyResult.transactions.slice(1));
     });
 });

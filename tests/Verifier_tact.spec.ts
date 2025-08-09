@@ -1,7 +1,9 @@
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton/sandbox';
-import { beginCell, Cell, toNano } from '@ton/core';
+import { beginCell, toNano } from '@ton/core';
 import { Verifier } from '../build/Verifier_tact/tact_Verifier';
 import '@ton/test-utils';
+
+import { GasLogAndSave } from './gas-logger';
 
 import '@ton/test-utils';
 import * as snarkjs from 'snarkjs';
@@ -22,12 +24,16 @@ describe('Verifier_tact', () => {
     let deployer: SandboxContract<TreasuryContract>;
     let verifier: SandboxContract<Verifier>;
 
+    let GAS_LOG = new GasLogAndSave('verifier_tact');
+
     beforeEach(async () => {
         blockchain = await Blockchain.create();
 
         verifier = blockchain.openContract(await Verifier.fromInit());
 
         deployer = await blockchain.treasury('deployer');
+
+        GAS_LOG.rememberBocSize('verifier_func', verifier.init?.code!);
 
         const deployResult = await verifier.send(
             deployer.getSender(),
@@ -43,6 +49,12 @@ describe('Verifier_tact', () => {
             deploy: true,
             success: true,
         });
+
+        GAS_LOG.rememberGas('Deploy', deployResult.transactions.slice(1));
+    });
+
+    afterAll(() => {
+        GAS_LOG.saveCurrentRunAfterAll();
     });
 
     it('should verify', async () => {
@@ -95,6 +107,8 @@ describe('Verifier_tact', () => {
             to: verifier.address,
             success: true,
         });
+
+        GAS_LOG.rememberGas('Verify', verifyResult.transactions.slice(1));
 
         expect(await verifier.getRes()).toBeTruthy();
     });
