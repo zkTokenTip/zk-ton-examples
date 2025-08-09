@@ -1,5 +1,6 @@
 import "@stdlib/deploy";
 
+
 asm fun blsG1Add(x: Slice, y: Slice): Slice {
   BLS_G1_ADD
 }
@@ -22,8 +23,6 @@ asm fun blsPairing(
   BLS_PAIRING
 }
 
-asm fun getFirstBits(s: Slice, len: Int): Slice { SDCUTFIRST }
-
 message Verify {
     piA: Slice;
     piB: Slice;
@@ -32,40 +31,40 @@ message Verify {
 }
 
 contract Verifier with Deployable {
-    const OP_VERIFY: Int = 0;
     const P1_SIZE: Int = 48 * 8;
     const P2_SIZE: Int = 96 * 8;
-    const IC0: String = "b2eb46aa34e33e47c34c8f902c0237fe15e3b053c2af936f4989a98b08484d9c7ffd5c2ce401d385b599c0fde655a142";
-    const IC1: String = "b6597f374fc6e14acc27412668e75fbcd0a2be626992e87e883fa2a9a7450a10ccd55c1c660c7eda1a554b7193a26ef2";
-    const vk_gamma_2: String = "93e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f5049334cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8";
-    const vk_delta_2: String = "b7d8dfbd24e100e145ba815b133c77182aaef34c8a319c9a7f12a1cd6071d539ac44a081d54ef1fdb31780219bd259dd0d4415248583355304810e130139ed017081c417973204211aaf59ef822caa07ba4b34a2836b8ddeed42f2c00a15ff47";
-    const vk_alpha_1: String = "992c654968a7e37ffdb3b43cd1c88adb6824e315a781179688457d9a39ba362147045159225789ec35f274ed0c9f8b7a";
-    const vk_beta_2: String = "a8cd76691240c8de423e591b8bf5a23ef88d2317ccda39bebbe3e9b85bfd28bf4663817174cc7cf7ecedb006cf9cdd4002c6c4afda47638d70bfecba5f0c4656975d6da656b93631aeee22015abb2dd70bcfb3634508700947f626decdc3e3b7";
+    const IC0: Slice = rawSlice("ac0e607fb57156f882b798ce3195574278f61cf21828d5f2cf42e55300f108ecd817614e60180867e1f65749f11c71de"
+    );
+    const IC1: Slice = rawSlice("b111848794e58b53a7bbf693850a7b0bff6b07092d91f3696974ea4dda64d27c8a3e8b3894f570e48c4adbe25aec6567"
+    );
+    const vk_gamma_2: Slice = rawSlice("93e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f5049334cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8"
+    );
+    const vk_delta_2: Slice = rawSlice("804ca21d3c8d9a58e7a63e7fb564fee76892d3f5839571d05b2243e10d848a01db45920feb1f18caef59b60cef77b76700af100aa037c1a30316d6f9341566143f9c1ab4db82677ae29ac147b7d31b9f6c8e17c235b5b3511a20880ad2b9a5e2"
+    );
+    const vk_alpha_1: Slice = rawSlice("b830008ceed707a79fb554918ab9158ea9a9251d9a8333155ef52b0b9d712f03fa1eae9ed8e21f9d2beaea735c8766a9"
+    );
+    const vk_beta_2: Slice = rawSlice("89c29649fd447cedcd7bb3f619f32a3bea8249e928809cc37320a5528c958728c4f43a18d29fe478ee3e1b9ccee362c80cc4144a269e81594665fca33acfe73e97be3089cf02edd226ebeafd104a0de5b21334a82ff12282d040fa1f8191d3a9"
+    );
     res: Bool = false;
 
     receive(msg: Verify){
-        self.res = self.groth16Verify(
-            getFirstBits(msg.piA, self.P1_SIZE),
-            getFirstBits(msg.piB, self.P2_SIZE),
-            getFirstBits(msg.piC, self.P1_SIZE),
-            msg.pubInput0
-        );
+        self.res = self.groth16Verify(msg.piA, msg.piB, msg.piC, msg.pubInput0);
     }
 
     fun groth16Verify(piA: Slice, piB: Slice, piC: Slice, pubInput0: Int): Bool {
         let res: Bool = false;
         // cpub = sum_{i=1..nPublic} IC_i * pubInput(i-1)  +  IC_0
-        let cpub: Slice = blsG1Multiexp(self.IC1.asSlice(), pubInput0, 1);
-        cpub = blsG1Add(cpub, self.IC0.asSlice());
+        let cpub: Slice = blsG1Multiexp(self.IC1, pubInput0, 1);
+        cpub = blsG1Add(cpub, self.IC0);
         let piANeg: Slice = blsG1Neg(piA);
         let a: Int = blsPairing(cpub,
-            self.vk_gamma_2.asSlice(),
+            self.vk_gamma_2,
             piANeg,
             piB,
             piC,
-            self.vk_delta_2.asSlice(),
-            self.vk_alpha_1.asSlice(),
-            self.vk_beta_2.asSlice(),
+            self.vk_delta_2,
+            self.vk_alpha_1,
+            self.vk_beta_2,
             4
         );
         if (a == 0) {

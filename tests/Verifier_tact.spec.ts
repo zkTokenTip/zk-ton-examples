@@ -51,7 +51,7 @@ describe('Verifier_tact', () => {
             b: '32',
         };
         let { proof, publicSignals } = await snarkjs.groth16.fullProve(input, wasmPath, zkeyPath);
-        // console.log(publicSignals);
+        console.log(publicSignals);
 
         let curve = await buildBls12381();
         let proofProc = unstringifyBigInts(proof);
@@ -75,29 +75,27 @@ describe('Verifier_tact', () => {
             ),
         ).toBeTruthy();
 
-        // const user = await blockchain.treasury('user');
-        // const verifyResult = await verifier.send(
-        //     user.getSender(),
-        //     {
-        //         value: toNano('0.05'),
-        //     },
-        //     {
-        //         $$type: 'Verify',
-        //         piA: beginCell().storeBuffer(pi_a).endCell().asSlice(),
-        //         piB: beginCell().storeBuffer(pi_b).endCell().asSlice(),
-        //         piC: beginCell().storeBuffer(pi_c).endCell().asSlice(),
-        //         pubInput0: pubInputs[0],
-        //     },
-        // );
+        const user = await blockchain.treasury('user');
+        const verifyResult = await verifier.send(
+            user.getSender(),
+            {
+                value: toNano('0.05'),
+            },
+            {
+                $$type: 'Verify',
+                piA: beginCell().storeBuffer(pi_a).endCell().asSlice(),
+                piB: beginCell().storeBuffer(pi_b).endCell().asSlice(),
+                piC: beginCell().storeBuffer(pi_c).endCell().asSlice(),
+                pubInput0: pubInputs[0],
+            },
+        );
 
-        // console.log(verifyResult);
+        expect(verifyResult.transactions).toHaveTransaction({
+            from: user.address,
+            to: verifier.address,
+            success: true,
+        });
 
-        // expect(verifyResult.transactions).toHaveTransaction({
-        //     from: user.address,
-        //     to: verifier.address,
-        //     success: true,
-        // });
-
-        // expect(await verifier.getRes()).toBeTruthy();
+        expect(await verifier.getRes()).toBeTruthy();
     });
 });
