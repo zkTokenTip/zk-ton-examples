@@ -19,6 +19,7 @@ const { unstringifyBigInts } = utils;
 
 const wasmPath = path.join(__dirname, '../circuits/Multiplier', 'Multiplier.wasm');
 const zkeyPath = path.join(__dirname, '../circuits/Multiplier', 'Multiplier_0001.zkey');
+const verificationKey = require('../circuits/Multiplier/verification_key.json');
 
 describe('Verifier_func', () => {
     let code: Cell;
@@ -57,15 +58,18 @@ describe('Verifier_func', () => {
     });
 
     it('should verify', async () => {
-        let input = {
+        const input = {
             a: '342',
             b: '1245',
         };
-        let { proof, publicSignals } = await snarkjs.groth16.fullProve(input, wasmPath, zkeyPath);
-        console.log(publicSignals);
+        const { proof, publicSignals } = await snarkjs.groth16.fullProve(input, wasmPath, zkeyPath);
+        console.log('Public Signals:', publicSignals);
 
-        let curve = await buildBls12381();
-        let proofProc = unstringifyBigInts(proof);
+        const isVerify = await snarkjs.groth16.verify(verificationKey, publicSignals, proof);
+        expect(isVerify).toBe(true);
+
+        const curve = await buildBls12381();
+        const proofProc = unstringifyBigInts(proof);
 
         const pi_aS = g1Compressed(curve, proofProc.pi_a);
         const pi_bS = g2Compressed(curve, proofProc.pi_b);
@@ -77,10 +81,9 @@ describe('Verifier_func', () => {
 
         const pubInputs = (publicSignals as string[]).map((s) => BigInt(s));
 
-        expect(await verifier.getVerify({ pi_a, pi_b, pi_c, pubInputs })).toBeTruthy();
+        expect(await verifier.getVerify({ pi_a, pi_b, pi_c, pubInputs })).toBe(true);
 
-        const user = await blockchain.treasury('user');
-        const verifyResult = await verifier.sendVerify(user.getSender(), {
+        const verifyResult = await verifier.sendVerify(deployer.getSender(), {
             pi_a,
             pi_b,
             pi_c,
@@ -89,7 +92,7 @@ describe('Verifier_func', () => {
         });
 
         expect(verifyResult.transactions).toHaveTransaction({
-            from: user.address,
+            from: deployer.address,
             to: verifier.address,
             success: true,
         });

@@ -18,6 +18,7 @@ const { unstringifyBigInts } = utils;
 
 const wasmPath = path.join(__dirname, '../circuits/Multiplier', 'Multiplier.wasm');
 const zkeyPath = path.join(__dirname, '../circuits/Multiplier', 'Multiplier_0001.zkey');
+const verificationKey = require('../circuits/Multiplier/verification_key.json');
 
 describe('Verifier_tact', () => {
     let blockchain: Blockchain;
@@ -58,15 +59,18 @@ describe('Verifier_tact', () => {
     });
 
     it('should verify', async () => {
-        let input = {
+        const input = {
             a: '435',
             b: '32',
         };
-        let { proof, publicSignals } = await snarkjs.groth16.fullProve(input, wasmPath, zkeyPath);
-        console.log(publicSignals);
+        const { proof, publicSignals } = await snarkjs.groth16.fullProve(input, wasmPath, zkeyPath);
+        console.log('Public Signals:', publicSignals);
 
-        let curve = await buildBls12381();
-        let proofProc = unstringifyBigInts(proof);
+        const isVerify = await snarkjs.groth16.verify(verificationKey, publicSignals, proof);
+        expect(isVerify).toBe(true);
+
+        const curve = await buildBls12381();
+        const proofProc = unstringifyBigInts(proof);
 
         const pi_aS = g1Compressed(curve, proofProc.pi_a);
         const pi_bS = g2Compressed(curve, proofProc.pi_b);
@@ -85,11 +89,10 @@ describe('Verifier_tact', () => {
                 beginCell().storeBuffer(pi_c).endCell().asSlice(),
                 pubInputs[0],
             ),
-        ).toBeTruthy();
+        ).toBe(true);
 
-        const user = await blockchain.treasury('user');
         const verifyResult = await verifier.send(
-            user.getSender(),
+            deployer.getSender(),
             {
                 value: toNano('0.05'),
             },
@@ -103,7 +106,7 @@ describe('Verifier_tact', () => {
         );
 
         expect(verifyResult.transactions).toHaveTransaction({
-            from: user.address,
+            from: deployer.address,
             to: verifier.address,
             success: true,
         });
