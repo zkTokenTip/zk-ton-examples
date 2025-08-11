@@ -42,10 +42,13 @@ snarkjs zkey export verificationkey Multiplier_0001.zkey verification_key.json
 
 cd ../..
 
-# export func contract
+# export FunC contract
 npx export-ton-verifier ./circuits/Multiplier/Multiplier_0001.zkey ./contracts/verifier.fc
-# export tolk contract
+# export Tolk contract
 npx export-ton-verifier ./circuits/Multiplier/Multiplier_0001.zkey ./contracts/verifier.tolk --tolk
-# export tact contract
+# export Tact contract
 npx export-ton-verifier ./circuits/Multiplier/Multiplier_0001.zkey ./contracts/verifier.tact --tact
+
+# Only copy the TypeScript wrapper
+npx export-ton-verifier import-wrapper ./wrappers/Verifier.ts --force
 ```
