@@ -1,31 +1,29 @@
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton/sandbox';
 import { beginCell, toNano } from '@ton/core';
-import { Verifier } from '../build/Verifier_tact/tact_Verifier';
 import '@ton/test-utils';
-
-import { GasLogAndSave } from './gas-logger';
-
-import '@ton/test-utils';
-import * as snarkjs from 'snarkjs';
-import path from 'path';
 
 // @ts-ignore
 import { buildBls12381, utils } from 'ffjavascript';
+import * as snarkjs from 'snarkjs';
+import path from 'path';
+const { unstringifyBigInts } = utils;
+
+import { GasLogAndSave } from './gas-logger';
+import { Verifier } from '../build/Verifier_multiplier_tact/tact_Verifier';
 
 const { g1Compressed, g2Compressed } = require('export-ton-verifier');
 
-const { unstringifyBigInts } = utils;
-
-const wasmPath = path.join(__dirname, '../circuits/Multiplier', 'Multiplier.wasm');
-const zkeyPath = path.join(__dirname, '../circuits/Multiplier', 'Multiplier_0001.zkey');
+const wasmPath = path.join(__dirname, '../circuits/Multiplier/Multiplier_js', 'Multiplier.wasm');
+const zkeyPath = path.join(__dirname, '../circuits/Multiplier', 'Multiplier_final.zkey');
 const verificationKey = require('../circuits/Multiplier/verification_key.json');
 
-describe('Verifier_tact', () => {
+// npx blueprint test Verifier_multiplier_tact
+describe('Verifier_multiplier_tact', () => {
     let blockchain: Blockchain;
     let deployer: SandboxContract<TreasuryContract>;
     let verifier: SandboxContract<Verifier>;
 
-    let GAS_LOG = new GasLogAndSave('verifier_tact');
+    let GAS_LOG = new GasLogAndSave('Verifier_multiplier_tact');
 
     beforeEach(async () => {
         blockchain = await Blockchain.create();
@@ -34,7 +32,7 @@ describe('Verifier_tact', () => {
 
         deployer = await blockchain.treasury('deployer');
 
-        GAS_LOG.rememberBocSize('verifier_tact', verifier.init?.code!);
+        GAS_LOG.rememberBocSize('Verifier_multiplier_tact', verifier.init?.code!);
 
         const deployResult = await verifier.send(
             deployer.getSender(),
@@ -64,7 +62,6 @@ describe('Verifier_tact', () => {
             b: '32',
         };
         const { proof, publicSignals } = await snarkjs.groth16.fullProve(input, wasmPath, zkeyPath);
-        console.log('Public Signals:', publicSignals);
 
         const isVerify = await snarkjs.groth16.verify(verificationKey, publicSignals, proof);
         expect(isVerify).toBe(true);

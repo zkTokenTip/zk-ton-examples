@@ -1,6 +1,6 @@
 import { CompilerConfig } from '@ton/blueprint';
 
 export const compile: CompilerConfig = {
-    lang: 'func',
-    targets: ['contracts/verifier.fc'],
+    lang: 'tolk',
+    entrypoint: 'contracts/verifier_multiplier.tolk',
 };

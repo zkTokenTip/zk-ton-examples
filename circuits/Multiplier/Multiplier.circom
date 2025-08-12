@@ -1,6 +1,8 @@
+pragma circom 2.2.2;
+
 template Multiplier() {
-   signal private input a;
-   signal private input b;
+   signal input a;
+   signal input b;
 
    signal output c;
 

@@ -7,8 +7,8 @@ import {
     ContractProvider,
     Sender,
     SendMode,
-    Slice,
     TupleItem,
+    Dictionary,
 } from '@ton/core';
 
 export type VerifierConfig = {};
@@ -37,15 +37,6 @@ export class Verifier implements Contract {
         return new Verifier(contractAddress(workchain, init), init);
     }
 
-    cellFromInputList(list: bigint[]): Cell {
-        var builder = beginCell();
-        builder.storeUint(list[0], 256);
-        if (list.length > 1) {
-            builder.storeRef(this.cellFromInputList(list.slice(1)));
-        }
-        return builder.endCell();
-    }
-
     async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
         await provider.internal(via, {
             value,
@@ -69,22 +60,44 @@ export class Verifier implements Contract {
         await provider.internal(via, {
             value: opts.value,
             sendMode: SendMode.PAY_GAS_SEPARATELY,
-            body: beginCell()
-                .storeUint(Opcodes.verify, 32)
-                .storeUint(opts.queryID ?? 0, 64)
-                .storeRef(
-                    beginCell()
-                        .storeBuffer(opts.pi_a)
-                        .storeRef(
-                            beginCell()
-                                .storeBuffer(opts.pi_b)
-                                .storeRef(
-                                    beginCell().storeBuffer(opts.pi_c).storeRef(this.cellFromInputList(opts.pubInputs)),
-                                ),
-                        ),
-                )
-                .endCell(),
+            body: this.verifyBody(opts),
         });
+    }
+
+    dictFromInputList(list: bigint[]): Dictionary<bigint, bigint> {
+        const dict: Dictionary<bigint, bigint> = Dictionary.empty(
+            Dictionary.Keys.BigUint(32),
+            Dictionary.Values.BigInt(256),
+        );
+        for (let i = 0; i < list.length; i++) {
+            dict.set(BigInt(i), list[i]);
+        }
+        return dict;
+    }
+
+    verifyBody(opts: {
+        pi_a: Buffer;
+        pi_b: Buffer;
+        pi_c: Buffer;
+        pubInputs: bigint[];
+        value: bigint;
+        queryID?: number;
+    }): Cell {
+        return beginCell()
+            .storeUint(Opcodes.verify, 32)
+            .storeUint(opts.queryID ?? 0, 64)
+            .storeRef(
+                beginCell()
+                    .storeBuffer(opts.pi_a)
+                    .storeRef(
+                        beginCell()
+                            .storeBuffer(opts.pi_b)
+                            .storeRef(
+                                beginCell().storeBuffer(opts.pi_c).storeDict(this.dictFromInputList(opts.pubInputs)),
+                            ),
+                    ),
+            )
+            .endCell();
     }
 
     async getVerify(
@@ -99,13 +112,12 @@ export class Verifier implements Contract {
         const pi_a = { type: 'slice', cell: beginCell().storeBuffer(opts.pi_a).endCell() } as TupleItem;
         const pi_b = { type: 'slice', cell: beginCell().storeBuffer(opts.pi_b).endCell() } as TupleItem;
         const pi_c = { type: 'slice', cell: beginCell().storeBuffer(opts.pi_c).endCell() } as TupleItem;
+        const pubInputs = {
+            type: 'slice',
+            cell: beginCell().storeDict(this.dictFromInputList(opts.pubInputs)).endCell(),
+        } as TupleItem;
 
-        let pubInputs = [];
-        for (let i = 0; i < opts.pubInputs.length; i++) {
-            pubInputs[i] = { type: 'int', value: opts.pubInputs[i] } as TupleItem;
-        }
-
-        const result = await provider.get('get_verify', [pi_a, pi_b, pi_c, ...pubInputs]);
+        const result = await provider.get('get_verify', [pi_a, pi_b, pi_c, pubInputs]);
         return result.stack.readBoolean();
     }
 }

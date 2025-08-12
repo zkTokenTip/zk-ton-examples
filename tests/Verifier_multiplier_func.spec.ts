@@ -1,32 +1,30 @@
 import { Blockchain, SandboxContract, TreasuryContract } from '@ton/sandbox';
-import { Cell, toNano } from '@ton/core';
-import { Verifier } from '../wrappers/Verifier';
-import '@ton/test-utils';
 import { compile } from '@ton/blueprint';
-
+import { Cell, toNano } from '@ton/core';
 import '@ton/test-utils';
-import * as snarkjs from 'snarkjs';
-import path from 'path';
 
 // @ts-ignore
 import { buildBls12381, utils } from 'ffjavascript';
+import * as snarkjs from 'snarkjs';
+import path from 'path';
+const { unstringifyBigInts } = utils;
+
 import { GasLogAndSave } from './gas-logger';
+import { Verifier } from '../wrappers/Verifier';
 
 const { g1Compressed, g2Compressed } = require('export-ton-verifier');
 
-const { unstringifyBigInts } = utils;
-
-const wasmPath = path.join(__dirname, '../circuits/Multiplier', 'Multiplier.wasm');
-const zkeyPath = path.join(__dirname, '../circuits/Multiplier', 'Multiplier_0001.zkey');
+const wasmPath = path.join(__dirname, '../circuits/Multiplier/Multiplier_js', 'Multiplier.wasm');
+const zkeyPath = path.join(__dirname, '../circuits/Multiplier', 'Multiplier_final.zkey');
 const verificationKey = require('../circuits/Multiplier/verification_key.json');
 
-describe('Verifier_tolk', () => {
+describe('Verifier_multiplier_func', () => {
     let code: Cell;
-    let GAS_LOG = new GasLogAndSave('verifier_tolk');
+    let GAS_LOG = new GasLogAndSave('Verifier_multiplier_func');
 
     beforeAll(async () => {
-        code = await compile('Verifier_tolk');
-        GAS_LOG.rememberBocSize('verifier_tolk', code);
+        code = await compile('Verifier_multiplier_func');
+        GAS_LOG.rememberBocSize('Verifier_multiplier_func', code);
     });
 
     afterAll(() => {
@@ -58,11 +56,10 @@ describe('Verifier_tolk', () => {
 
     it('should verify', async () => {
         const input = {
-            a: '435',
-            b: '32',
+            a: '342',
+            b: '1245',
         };
         const { proof, publicSignals } = await snarkjs.groth16.fullProve(input, wasmPath, zkeyPath);
-        console.log('Public Signals:', publicSignals);
 
         const isVerify = await snarkjs.groth16.verify(verificationKey, publicSignals, proof);
         expect(isVerify).toBe(true);

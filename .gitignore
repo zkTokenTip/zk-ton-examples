@@ -27,3 +27,9 @@ package-lock.json
 *.r1cs
 *.ptau
 *.sym
+*.tgz
+*.wtns
+*.zkey
+*.nope
+
+Multiplier_js
