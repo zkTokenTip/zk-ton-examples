@@ -75,11 +75,35 @@ snarkjs zkey export verificationkey Sudoku_final.zkey verification_key.json
 snarkjs groth16 prove Sudoku_final.zkey Sudoku.wtns proof.json public.json
 #Verifying a Proof
 snarkjs groth16 verify verification_key.json public.json proof.json
-#Export solidity
-snarkjs zkey export solidityverifier Sudoku_final.zkey verifier.sol
 
 # export FunC contract
 npx export-ton-verifier ./circuits/Sudoku/Sudoku_final.zkey ./contracts/verifier_sudoku.fc
+# export Tact contract
+npx export-ton-verifier ./circuits/Sudoku/Sudoku_final.zkey ./contracts/verifier_sudoku.tact --tact
+```
+
+### zkTokne (circom)
+
+```sh
+cd .\circuits\zkTokenRegistration\
+
+# compile circuit
+circom registration.circom --r1cs --wasm --sym --prime bls12381
+
+snarkjs powersoftau new bls12-381 10 pot10_0000.ptau -v
+snarkjs powersoftau contribute pot10_0000.ptau pot10_0001.ptau --name="First contribution" -v -e="some random text"
+snarkjs powersoftau prepare phase2 pot10_0001.ptau pot10_final.ptau -v
+snarkjs groth16 setup registration.r1cs pot10_final.ptau registration_0000.zkey
+snarkjs zkey contribute registration_0000.zkey registration_final.zkey --name="1st Contributor Name" -v -e="some random text"
+snarkjs zkey export verificationkey registration_final.zkey verification_key.json
+
+
+# export FunC contract
+npx export-ton-verifier ./circuits/zkTokenRegistration/registration_final.zkey ./contracts/verifier_reg.fc
+# export Tolk contract
+npx export-ton-verifier ./circuits/zkTokenRegistration/registration_final.zkey ./contracts/verifier_reg.tolk --tolk
+# export Tact contract
+npx export-ton-verifier ./circuits/zkTokenRegistration/registration_final.zkey ./contracts/verifier_reg.tact --tact
 ```
 
 ## Known issues

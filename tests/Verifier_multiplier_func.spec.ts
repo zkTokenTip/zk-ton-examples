@@ -18,6 +18,7 @@ const wasmPath = path.join(__dirname, '../circuits/Multiplier/Multiplier_js', 'M
 const zkeyPath = path.join(__dirname, '../circuits/Multiplier', 'Multiplier_final.zkey');
 const verificationKey = require('../circuits/Multiplier/verification_key.json');
 
+// npx blueprint test Verifier_multiplier_func
 describe('Verifier_multiplier_func', () => {
     let code: Cell;
     let GAS_LOG = new GasLogAndSave('Verifier_multiplier_func');

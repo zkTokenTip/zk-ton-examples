@@ -1,0 +1,36 @@
+{
+    "$schema": "https://raw.githubusercontent.com/tact-lang/tact/main/src/config/configSchema.json",
+    "projects": [
+        {
+            "name": "Verifier_multiplier_tact",
+            "path": "contracts\\verifier_multiplier.tact",
+            "output": "build\\Verifier_multiplier_tact",
+            "options": {
+                "debug": false,
+                "external": false
+            },
+            "mode": "full"
+        },
+        {
+            "name": "Verifier_sudoku_tact",
+            "path": "contracts\\verifier_sudoku.tact",
+            "output": "build\\Verifier_sudoku_tact",
+            "options": {
+                "debug": false,
+                "external": false
+            },
+            "mode": "full"
+        },
+        {
+            "name": "Verifier_reg_tact",
+            "path": "contracts\\verifier_reg.tact",
+            "output": "build\\Verifier_reg_tact",
+            "options": {
+                "debug": false,
+                "external": false
+            },
+            "mode": "full"
+        }
+
+    ]
+}

@@ -32,4 +32,5 @@ package-lock.json
 *.zkey
 *.nope
 
-Multiplier_js
+*_js
+zkTokenRegistration
