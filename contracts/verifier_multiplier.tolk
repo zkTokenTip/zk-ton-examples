@@ -25,7 +25,7 @@ const `verifier::nPublic` = 1
 const `verifier::err::public_not_present` = 257
 const `verifier::err::too_many_publics` = 258
 
-// bls intrinsics
+// BLS intrinsics
 @pure
 fun blsG1Add(x: slice, y: slice): slice
     asm "BLS_G1_ADD";
@@ -69,24 +69,24 @@ fun groth16Verify(
 ): int {
     var res: int = 0;
 
-    // извлекаем публичные входы по ключам 0..nPublic-1
+    // Extract public inputs by keys 0..nPublic-1
     var (input0: slice?, ok0: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 0);
     assert(ok0) throw `verifier::err::public_not_present`;
     var val0: int = input0!.loadUint(256);
 
-    // убеждаемся, что в dict ничего не осталось
+    // Ensure that the dict has no remaining entries
     assert((pubInputs == null)) throw `verifier::err::too_many_publics`;
 
-    // собираем cpub через batched MULTIEXP и суммирование
+    // Assemble cpub via batched MULTIEXP and summation
     var cpub: slice = blsG1Multiexp_1(
         `verifier::IC1`, val0
         , 1
     );
 
-    // добавляем свободный член IC0
+    // Add the constant term IC0
     cpub = blsG1Add(cpub, `verifier::IC0`);
 
-    // pairing check
+    // Pairing check
     var piANeg: slice = blsG1Neg(piA);
     var a: int = blsPairing(
         cpub,                 `verifier::vk_gamma_2`,
@@ -113,7 +113,7 @@ fun verify(inMsgBody: slice): int {
     return groth16Verify(piA, piB, piC, pubInputs);
 }
 
-// in the future, use: fun onInternalMessage(in: InMessage)
+// In the future, use: fun onInternalMessage(in: InMessage)
 fun onInternalMessage(myBalance: int, msgValue: int, inMsgFull: cell, inMsgBody: slice) {
     if (inMsgBody.isEmpty()) {
         return;

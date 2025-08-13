@@ -8,7 +8,8 @@ import path from 'path';
 
 import { GasLogAndSave } from './gas-logger';
 import { Verifier } from '../wrappers/Verifier';
-import { groth16CompressProof } from './common';
+
+import { groth16CompressProof } from 'export-ton-verifier';
 
 const wtnsPath = path.join(__dirname, '../circuits/Sudoku/', 'Sudoku.wtns');
 const zkeyPath = path.join(__dirname, '../circuits/Sudoku/', 'Sudoku_final.zkey');

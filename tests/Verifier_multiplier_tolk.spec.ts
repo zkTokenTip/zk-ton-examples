@@ -8,7 +8,8 @@ import path from 'path';
 
 import { GasLogAndSave } from './gas-logger';
 import { Verifier } from '../wrappers/Verifier';
-import { groth16CompressProof } from './common';
+
+import { groth16CompressProof } from 'export-ton-verifier';
 
 const wasmPath = path.join(__dirname, '../circuits/Multiplier/Multiplier_js', 'Multiplier.wasm');
 const zkeyPath = path.join(__dirname, '../circuits/Multiplier', 'Multiplier_final.zkey');

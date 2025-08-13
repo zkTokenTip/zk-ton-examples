@@ -7,7 +7,8 @@ import path from 'path';
 
 import { GasLogAndSave } from './gas-logger';
 import { Verifier } from '../build/Verifier_sudoku_tact/tact_Verifier';
-import { dictFromInputList, groth16CompressProof } from './common';
+
+import { dictFromInputList, groth16CompressProof } from 'export-ton-verifier';
 
 const wtnsPath = path.join(__dirname, '../circuits/Sudoku/', 'Sudoku.wtns');
 const zkeyPath = path.join(__dirname, '../circuits/Sudoku/', 'Sudoku_final.zkey');

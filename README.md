@@ -82,7 +82,7 @@ npx export-ton-verifier ./circuits/Sudoku/Sudoku_final.zkey ./contracts/verifier
 npx export-ton-verifier ./circuits/Sudoku/Sudoku_final.zkey ./contracts/verifier_sudoku.tact --tact
 ```
 
-### zkTokne (circom)
+### zkToken (circom)
 
 ```sh
 cd .\circuits\zkTokenRegistration\

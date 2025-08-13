@@ -154,7 +154,7 @@ slice bls_g1_multiexp_4(
     int res = 0;
 
 
-    ;; извлекаем публичные входы по ключам 0..nPublic-1
+    ;; extract public inputs by keys 0..nPublic-1
     (slice input0, int ok0) = pubInputs~udict_delete_get?(verifier::publicInputKeyLen, 0);
     throw_unless(verifier::err::public_not_present, ok0);
     int val0 = input0~load_uint(256);
@@ -399,10 +399,10 @@ slice bls_g1_multiexp_4(
     throw_unless(verifier::err::public_not_present, ok80);
     int val80 = input80~load_uint(256);
 
-    ;; убеждаемся, что в dict ничего не осталось
+    ;; ensure the dict is now empty
     throw_unless(verifier::err::too_many_publics, null?(pubInputs));
 
-    ;; собираем cpub через batched MULTIEXP и суммирование
+    ;; assemble cpub via batched MULTIEXP and summation
     slice cpub = bls_g1_multiexp_7(
         verifier::IC1, val0,
         verifier::IC2, val1,
@@ -521,7 +521,7 @@ slice bls_g1_multiexp_4(
         , 4
     ));
 
-    ;; добавляем свободный член IC0
+    ;; add the free term IC0
     cpub = bls_g1_add(cpub, verifier::IC0);
 
     ;; pairing check

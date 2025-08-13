@@ -30,11 +30,11 @@ asm fun blsG1Multiexp_4(
   , n: Int
 ): Slice { BLS_G1_MULTIEXP }
 
-// sizes
+// Sizes
 const P1_SIZE: Int = 48 * 8;
 const P2_SIZE: Int = 96 * 8;
 
-// vk constants
+// Verification key constants
 const vk_gamma_2: Slice = rawSlice("93e02b6052719f607dacd3a088274f65596bd0d09920b61ab5da61bbdc7f5049334cf11213945d57e5ac7d055d042b7e024aa2b2f08f0a91260805272dc51051c6e47ad4fa403b02b4510b647ae3d1770bac0326a805bbefd48056c8c121bdb8");
 const vk_delta_2: Slice = rawSlice("aecc523f51e16184d52b69af614f9346a8fa9dcdb3ccb9459ef81b9282e3108449e4bbfbd0f896d41b1d17935bd7f077185863c2a883653e5187a80cd04552bf5c978a3b476b0e382aeb4cff75424787b7edfc34bd31df0f7f336053ed6318cd");
 const vk_alpha_1: Slice = rawSlice("93a3f95cbc299feeb9e9056dd15fdbaaf2015236573479597994dbf08b251c54829152d3fb818e56b1bcb289315d9304");
@@ -124,7 +124,7 @@ const IC79: Slice = rawSlice("8cf6aae27323e7a429725f6f795ae6eb596970522485c7ca49
 const IC80: Slice = rawSlice("85c2eec96d675bcbda9afb452de8b2b89b8b41d97e65d61a2cae601342af618a42b7fe3654e62de18d017dbd1a4ba556");
 const IC81: Slice = rawSlice("aadc70ebe1233452b44683fc90c5823bc014d4ae880a947a5dbeac8db8fc73f45694d96fccc35840d048df9be0893da5");
 
-// ERRORS
+// Error codes
 const ERR_PUBLIC_NOT_PRESENT: Int = 257;
 const ERR_TOO_MANY_PUBLICS: Int = 258;
 const ERR_INDEX_OUT_OF_RANGE: Int = 259;
@@ -212,11 +212,11 @@ fun ic(idx: Int): Slice {
   if (idx == 79) { return IC79; }
   if (idx == 80) { return IC80; }
   if (idx == 81) { return IC81; }
-  return IC1; // stub
+  return IC0; // Fallback
   // nativeThrow(ERR_INDEX_OUT_OF_RANGE);
 }
 
-// message
+// Message definition
 message Verify {
   piA: Slice;
   piB: Slice;
@@ -239,7 +239,7 @@ contract Verifier with Deployable {
     // Loop over full batches of 7
     let done: Int = 0;
     let batchesLeft: Int = 11;
-    let cpub: Slice = IC0; // start with neutral value and sum the batch results
+    let cpub: Slice = IC0; // Start with neutral value and sum the batch results
     while (batchesLeft > 0) {
       let tmp: Slice = blsG1Multiexp_7(
         ic(done + 1), pubInputs.get(done + 0)!!,
@@ -257,7 +257,7 @@ contract Verifier with Deployable {
       batchesLeft -= 1;
     }
 
-    // Tail for 4 elements
+    // Tail batch for the remaining 4 elements
     let tail: Slice = blsG1Multiexp_4(
       ic(done + 1), pubInputs.get(done + 0)!!,
       ic(done + 2), pubInputs.get(done + 1)!!,
@@ -271,10 +271,10 @@ contract Verifier with Deployable {
     // Add the constant term
     cpub = blsG1Add(cpub, IC0);
 
-    // Check that the map is finished (no key nPublic)
+    // Check that no extra public inputs exist
     nativeThrowIf(ERR_TOO_MANY_PUBLICS, pubInputs.exists(81));
 
-    // pairing
+    // Perform pairing check
     let piANeg: Slice = blsG1Neg(piA);
     let ok: Int = blsPairing(
       cpub,       vk_gamma_2,
