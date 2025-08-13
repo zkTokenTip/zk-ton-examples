@@ -3,16 +3,12 @@ import { compile } from '@ton/blueprint';
 import { Cell, toNano } from '@ton/core';
 import '@ton/test-utils';
 
-// @ts-ignore
-import { buildBls12381, utils } from 'ffjavascript';
 import * as snarkjs from 'snarkjs';
 import path from 'path';
-const { unstringifyBigInts } = utils;
 
 import { GasLogAndSave } from './gas-logger';
 import { Verifier } from '../wrappers/Verifier';
-
-const { g1Compressed, g2Compressed } = require('export-ton-verifier');
+import { groth16CompressProof } from './common';
 
 const wasmPath = path.join(__dirname, '../circuits/Multiplier/Multiplier_js', 'Multiplier.wasm');
 const zkeyPath = path.join(__dirname, '../circuits/Multiplier', 'Multiplier_final.zkey');
@@ -65,18 +61,7 @@ describe('Verifier_multiplier_func', () => {
         const isVerify = await snarkjs.groth16.verify(verificationKey, publicSignals, proof);
         expect(isVerify).toBe(true);
 
-        const curve = await buildBls12381();
-        const proofProc = unstringifyBigInts(proof);
-
-        const pi_aS = g1Compressed(curve, proofProc.pi_a);
-        const pi_bS = g2Compressed(curve, proofProc.pi_b);
-        const pi_cS = g1Compressed(curve, proofProc.pi_c);
-
-        const pi_a = Buffer.from(pi_aS, 'hex');
-        const pi_b = Buffer.from(pi_bS, 'hex');
-        const pi_c = Buffer.from(pi_cS, 'hex');
-
-        const pubInputs = (publicSignals as string[]).map((s) => BigInt(s));
+        const { pi_a, pi_b, pi_c, pubInputs } = await groth16CompressProof(proof, publicSignals);
 
         expect(await verifier.getVerify({ pi_a, pi_b, pi_c, pubInputs })).toBe(true);
 
