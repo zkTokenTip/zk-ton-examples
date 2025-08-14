@@ -24,125 +24,127 @@ const `verifier::nPublic` = 1
 // error codes
 const `verifier::err::public_not_present` = 257
 const `verifier::err::too_many_publics` = 258
+const `verifier::err::index_out_of_range` = 259
 
 // BLS intrinsics
-@pure
-fun blsG1Add(x: slice, y: slice): slice
+@pure 
+  fun blsG1Add(x: slice, y: slice): slice 
     asm "BLS_G1_ADD";
-@pure
-fun blsG1Neg(x: slice): slice
+@pure 
+  fun blsG1Neg(x: slice): slice       
     asm "BLS_G1_NEG";
-@pure
-fun blsPairing(x1: slice, y1: slice, x2: slice, y2: slice, x3: slice, y3: slice, x4: slice, y4: slice, n: int): int
-    asm "BLS_PAIRING";
+@pure 
+  fun blsPairing(
+    x1: slice, y1: slice,
+    x2: slice, y2: slice,
+    x3: slice, y3: slice,
+    x4: slice, y4: slice,
+    n: int
+  ): int asm "BLS_PAIRING";
 
 
 @pure
 fun blsG1Multiexp_1(
-    x1: slice, y1: int
-    , n: int
-): slice
-    asm "BLS_G1_MULTIEXP";
+  x1: slice, y1: int
+  , n: int
+): slice asm "BLS_G1_MULTIEXP";
 
 // slice helpers
 fun slice.loadP1(mutate self): slice {
-    var c: cell = self.loadRef();
-    var s: slice = c.beginParse();
-    var p1: slice = s.getFirstBits(`verifier::P1_SIZE`);
-    s.skipBits(`verifier::P1_SIZE`);
-    self = s; return p1;
+  var c: cell = self.loadRef();
+  var s: slice = c.beginParse();
+  var p1: slice = s.getFirstBits(`verifier::P1_SIZE`);
+  s.skipBits(`verifier::P1_SIZE`);
+  self = s; return p1;
 }
 
 fun slice.loadP2(mutate self): slice {
-    var c: cell = self.loadRef();
-    var s: slice = c.beginParse();
-    var p2: slice = s.getFirstBits(`verifier::P2_SIZE`);
-    s.skipBits(`verifier::P2_SIZE`);
-    self = s; return p2;
+  var c: cell = self.loadRef();
+  var s: slice = c.beginParse();
+  var p2: slice = s.getFirstBits(`verifier::P2_SIZE`);
+  s.skipBits(`verifier::P2_SIZE`);
+  self = s; return p2;
+}
+
+// IC selector for runtime index: 1 -> IC1, 2 -> IC2, ...
+fun ic(idx: int): slice {
+  if (idx == 1) { return `verifier::IC1`; }
+  throw(`verifier::err::index_out_of_range`);
 }
 
 fun groth16Verify(
-    piA: slice,
-    piB: slice,
-    piC: slice,
-    pubInputs: dict
+  piA: slice,
+  piB: slice,
+  piC: slice,
+  pubInputs: dict
 ): int {
-    var res: int = 0;
+  var res: int = 0;
 
-    // Extract public inputs by keys 0..nPublic-1
-    var (input0: slice?, ok0: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 0);
-    assert(ok0) throw `verifier::err::public_not_present`;
-    var val0: int = input0!.loadUint(256);
+  // single batch (no loops; non-destructive dict access)
+  var (in0: slice?, ok0: bool) = pubInputs.uDictGet(`verifier::publicInputKeyLen`, 0);
+  assert(ok0) throw `verifier::err::public_not_present`;
+  var v0: int = in0!.loadUint(256);
+  var cpub: slice = blsG1Multiexp_1(
+    `verifier::IC1`, v0
+    , 1
+  );
 
-    // Ensure that the dict has no remaining entries
-    assert((pubInputs == null)) throw `verifier::err::too_many_publics`;
+  // add constant term
+  cpub = blsG1Add(cpub, `verifier::IC0`);
 
-    // Assemble cpub via batched MULTIEXP and summation
-    var cpub: slice = blsG1Multiexp_1(
-        `verifier::IC1`, val0
-        , 1
-    );
+  // pairing check
+  var piANeg: slice = blsG1Neg(piA);
+  var a: int = blsPairing(
+    cpub,                 `verifier::vk_gamma_2`,
+    piANeg,               piB,
+    piC,                  `verifier::vk_delta_2`,
+    `verifier::vk_alpha_1`, `verifier::vk_beta_2`,
+    4
+  );
 
-    // Add the constant term IC0
-    cpub = blsG1Add(cpub, `verifier::IC0`);
-
-    // Pairing check
-    var piANeg: slice = blsG1Neg(piA);
-    var a: int = blsPairing(
-        cpub,                 `verifier::vk_gamma_2`,
-        piANeg,               piB,
-        piC,                  `verifier::vk_delta_2`,
-        `verifier::vk_alpha_1`, `verifier::vk_beta_2`,
-        4
-    );
-
-    if (a == 0) {
-        res = 0;
-    } else {
-        res = 1;
-    }
-    return res;
+  res = (a == 0) ? 0 : 1;
+  return res;
 }
 
 fun verify(inMsgBody: slice): int {
-    var piA: slice = inMsgBody.loadP1();
-    var piB: slice = inMsgBody.loadP2();
-    var piC: slice = inMsgBody.loadP1();
-    var pubInputs = inMsgBody.loadDict();
-
-    return groth16Verify(piA, piB, piC, pubInputs);
+  var piA: slice = inMsgBody.loadP1();
+  var piB: slice = inMsgBody.loadP2();
+  var piC: slice = inMsgBody.loadP1();
+  var pubInputs = inMsgBody.loadDict();
+  return groth16Verify(piA, piB, piC, pubInputs);
 }
 
-// In the future, use: fun onInternalMessage(in: InMessage)
+// in the future, use: fun onInternalMessage(in: InMessage)
 fun onInternalMessage(myBalance: int, msgValue: int, inMsgFull: cell, inMsgBody: slice) {
-    if (inMsgBody.isEmpty()) {
-        return;
-    }
-    var cs: slice = inMsgFull.beginParse();
-    var flags: int = cs.loadUint(4);
-    if (flags & 1) {
-        return;
-    }
-    var op: int = inMsgBody.loadUint(32);
-    var queryId: int = inMsgBody.loadUint(64);
+  if (inMsgBody.isEmpty()) {
+    return;
+  }
+  var cs: slice = inMsgFull.beginParse();
+  var flags: int = cs.loadUint(4);
+  if (flags & 1) {
+    return;
+  }
+  var op: int = inMsgBody.loadUint(32);
+  var queryId: int = inMsgBody.loadUint(64);
 
-    if (op == OP_VERIFY) {
-        var res: int = verify(inMsgBody);
-        return;
-    }
-    throw 0xffff;
+  if (op == OP_VERIFY) {
+    var res: int = verify(inMsgBody);
+    return;
+  }
+  throw 0xffff;
 }
 
 get fun get_verify(
-    piA: slice,
-    piB: slice,
-    piC: slice,
-    pubInputs: slice
+  piA: slice,
+  piB: slice,
+  piC: slice,
+  pubInputs: slice
 ): int {
-    return groth16Verify(
-        piA,
-        piB,
-        piC,
-        pubInputs.loadDict()
-    );
+  return groth16Verify(
+    piA,
+    piB,
+    piC,
+    pubInputs.loadDict()
+  );
 }
+x

@@ -78,6 +78,8 @@ snarkjs groth16 verify verification_key.json public.json proof.json
 
 # export FunC contract
 npx export-ton-verifier ./circuits/Sudoku/Sudoku_final.zkey ./contracts/verifier_sudoku.fc
+# export Tolk contract
+npx export-ton-verifier ./circuits/Sudoku/Sudoku_final.zkey ./contracts/verifier_sudoku.tolk --tolk
 # export Tact contract
 npx export-ton-verifier ./circuits/Sudoku/Sudoku_final.zkey ./contracts/verifier_sudoku.tact --tact
 ```
@@ -104,16 +106,4 @@ npx export-ton-verifier ./circuits/zkTokenRegistration/registration_final.zkey .
 npx export-ton-verifier ./circuits/zkTokenRegistration/registration_final.zkey ./contracts/verifier_reg.tolk --tolk
 # export Tact contract
 npx export-ton-verifier ./circuits/zkTokenRegistration/registration_final.zkey ./contracts/verifier_reg.tact --tact
-```
-
-## Known issues
-
-```sh
-# export Tolk contract 
-$ npx export-ton-verifier ./circuits/Sudoku/Sudoku_final.zkey ./contracts/verifier_sudoku.tolk --tolk
-$ npx blueprint build Verifier_tolk_sudoku
-
-Build script running, compiling Verifier_tolk_sudoku
-🔧 Using tolk version 1.0.0...
-RangeError: Maximum call stack size exceeded
 ```

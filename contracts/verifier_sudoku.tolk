@@ -104,493 +104,291 @@ const `verifier::nPublic` = 81
 // error codes
 const `verifier::err::public_not_present` = 257
 const `verifier::err::too_many_publics` = 258
+const `verifier::err::index_out_of_range` = 259
 
-// bls intrinsics
-@pure
-fun blsG1Add(x: slice, y: slice): slice
+// BLS intrinsics
+@pure 
+  fun blsG1Add(x: slice, y: slice): slice 
     asm "BLS_G1_ADD";
-@pure
-fun blsG1Neg(x: slice): slice
+@pure 
+  fun blsG1Neg(x: slice): slice       
     asm "BLS_G1_NEG";
-@pure
-fun blsPairing(x1: slice, y1: slice, x2: slice, y2: slice, x3: slice, y3: slice, x4: slice, y4: slice, n: int): int
-    asm "BLS_PAIRING";
+@pure 
+  fun blsPairing(
+    x1: slice, y1: slice,
+    x2: slice, y2: slice,
+    x3: slice, y3: slice,
+    x4: slice, y4: slice,
+    n: int
+  ): int asm "BLS_PAIRING";
 
 
 @pure
 fun blsG1Multiexp_7(
-    x1: slice, y1: int,
-    x2: slice, y2: int,
-    x3: slice, y3: int,
-    x4: slice, y4: int,
-    x5: slice, y5: int,
-    x6: slice, y6: int,
-    x7: slice, y7: int
-    , n: int
-): slice
-    asm "BLS_G1_MULTIEXP";
+  x1: slice, y1: int,
+  x2: slice, y2: int,
+  x3: slice, y3: int,
+  x4: slice, y4: int,
+  x5: slice, y5: int,
+  x6: slice, y6: int,
+  x7: slice, y7: int
+  , n: int
+): slice asm "BLS_G1_MULTIEXP";
 @pure
 fun blsG1Multiexp_4(
-    x1: slice, y1: int,
-    x2: slice, y2: int,
-    x3: slice, y3: int,
-    x4: slice, y4: int
-    , n: int
-): slice
-    asm "BLS_G1_MULTIEXP";
+  x1: slice, y1: int,
+  x2: slice, y2: int,
+  x3: slice, y3: int,
+  x4: slice, y4: int
+  , n: int
+): slice asm "BLS_G1_MULTIEXP";
 
 // slice helpers
 fun slice.loadP1(mutate self): slice {
-    var c: cell = self.loadRef();
-    var s: slice = c.beginParse();
-    var p1: slice = s.getFirstBits(`verifier::P1_SIZE`);
-    s.skipBits(`verifier::P1_SIZE`);
-    self = s; return p1;
+  var c: cell = self.loadRef();
+  var s: slice = c.beginParse();
+  var p1: slice = s.getFirstBits(`verifier::P1_SIZE`);
+  s.skipBits(`verifier::P1_SIZE`);
+  self = s; return p1;
 }
 
 fun slice.loadP2(mutate self): slice {
-    var c: cell = self.loadRef();
-    var s: slice = c.beginParse();
-    var p2: slice = s.getFirstBits(`verifier::P2_SIZE`);
-    s.skipBits(`verifier::P2_SIZE`);
-    self = s; return p2;
+  var c: cell = self.loadRef();
+  var s: slice = c.beginParse();
+  var p2: slice = s.getFirstBits(`verifier::P2_SIZE`);
+  s.skipBits(`verifier::P2_SIZE`);
+  self = s; return p2;
+}
+
+// IC selector for runtime index: 1 -> IC1, 2 -> IC2, ...
+fun ic(idx: int): slice {
+  if (idx == 1) { return `verifier::IC1`; }
+  if (idx == 2) { return `verifier::IC2`; }
+  if (idx == 3) { return `verifier::IC3`; }
+  if (idx == 4) { return `verifier::IC4`; }
+  if (idx == 5) { return `verifier::IC5`; }
+  if (idx == 6) { return `verifier::IC6`; }
+  if (idx == 7) { return `verifier::IC7`; }
+  if (idx == 8) { return `verifier::IC8`; }
+  if (idx == 9) { return `verifier::IC9`; }
+  if (idx == 10) { return `verifier::IC10`; }
+  if (idx == 11) { return `verifier::IC11`; }
+  if (idx == 12) { return `verifier::IC12`; }
+  if (idx == 13) { return `verifier::IC13`; }
+  if (idx == 14) { return `verifier::IC14`; }
+  if (idx == 15) { return `verifier::IC15`; }
+  if (idx == 16) { return `verifier::IC16`; }
+  if (idx == 17) { return `verifier::IC17`; }
+  if (idx == 18) { return `verifier::IC18`; }
+  if (idx == 19) { return `verifier::IC19`; }
+  if (idx == 20) { return `verifier::IC20`; }
+  if (idx == 21) { return `verifier::IC21`; }
+  if (idx == 22) { return `verifier::IC22`; }
+  if (idx == 23) { return `verifier::IC23`; }
+  if (idx == 24) { return `verifier::IC24`; }
+  if (idx == 25) { return `verifier::IC25`; }
+  if (idx == 26) { return `verifier::IC26`; }
+  if (idx == 27) { return `verifier::IC27`; }
+  if (idx == 28) { return `verifier::IC28`; }
+  if (idx == 29) { return `verifier::IC29`; }
+  if (idx == 30) { return `verifier::IC30`; }
+  if (idx == 31) { return `verifier::IC31`; }
+  if (idx == 32) { return `verifier::IC32`; }
+  if (idx == 33) { return `verifier::IC33`; }
+  if (idx == 34) { return `verifier::IC34`; }
+  if (idx == 35) { return `verifier::IC35`; }
+  if (idx == 36) { return `verifier::IC36`; }
+  if (idx == 37) { return `verifier::IC37`; }
+  if (idx == 38) { return `verifier::IC38`; }
+  if (idx == 39) { return `verifier::IC39`; }
+  if (idx == 40) { return `verifier::IC40`; }
+  if (idx == 41) { return `verifier::IC41`; }
+  if (idx == 42) { return `verifier::IC42`; }
+  if (idx == 43) { return `verifier::IC43`; }
+  if (idx == 44) { return `verifier::IC44`; }
+  if (idx == 45) { return `verifier::IC45`; }
+  if (idx == 46) { return `verifier::IC46`; }
+  if (idx == 47) { return `verifier::IC47`; }
+  if (idx == 48) { return `verifier::IC48`; }
+  if (idx == 49) { return `verifier::IC49`; }
+  if (idx == 50) { return `verifier::IC50`; }
+  if (idx == 51) { return `verifier::IC51`; }
+  if (idx == 52) { return `verifier::IC52`; }
+  if (idx == 53) { return `verifier::IC53`; }
+  if (idx == 54) { return `verifier::IC54`; }
+  if (idx == 55) { return `verifier::IC55`; }
+  if (idx == 56) { return `verifier::IC56`; }
+  if (idx == 57) { return `verifier::IC57`; }
+  if (idx == 58) { return `verifier::IC58`; }
+  if (idx == 59) { return `verifier::IC59`; }
+  if (idx == 60) { return `verifier::IC60`; }
+  if (idx == 61) { return `verifier::IC61`; }
+  if (idx == 62) { return `verifier::IC62`; }
+  if (idx == 63) { return `verifier::IC63`; }
+  if (idx == 64) { return `verifier::IC64`; }
+  if (idx == 65) { return `verifier::IC65`; }
+  if (idx == 66) { return `verifier::IC66`; }
+  if (idx == 67) { return `verifier::IC67`; }
+  if (idx == 68) { return `verifier::IC68`; }
+  if (idx == 69) { return `verifier::IC69`; }
+  if (idx == 70) { return `verifier::IC70`; }
+  if (idx == 71) { return `verifier::IC71`; }
+  if (idx == 72) { return `verifier::IC72`; }
+  if (idx == 73) { return `verifier::IC73`; }
+  if (idx == 74) { return `verifier::IC74`; }
+  if (idx == 75) { return `verifier::IC75`; }
+  if (idx == 76) { return `verifier::IC76`; }
+  if (idx == 77) { return `verifier::IC77`; }
+  if (idx == 78) { return `verifier::IC78`; }
+  if (idx == 79) { return `verifier::IC79`; }
+  if (idx == 80) { return `verifier::IC80`; }
+  if (idx == 81) { return `verifier::IC81`; }
+  throw(`verifier::err::index_out_of_range`);
 }
 
 fun groth16Verify(
-    piA: slice,
-    piB: slice,
-    piC: slice,
-    pubInputs: dict
+  piA: slice,
+  piB: slice,
+  piC: slice,
+  pubInputs: dict
 ): int {
-    var res: int = 0;
+  var res: int = 0;
 
-    // извлекаем публичные входы по ключам 0..nPublic-1
-    var (input0: slice?, ok0: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 0);
-    assert(ok0) throw `verifier::err::public_not_present`;
-    var val0: int = input0!.loadUint(256);
-    var (input1: slice?, ok1: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 1);
-    assert(ok1) throw `verifier::err::public_not_present`;
-    var val1: int = input1!.loadUint(256);
-    var (input2: slice?, ok2: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 2);
-    assert(ok2) throw `verifier::err::public_not_present`;
-    var val2: int = input2!.loadUint(256);
-    var (input3: slice?, ok3: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 3);
-    assert(ok3) throw `verifier::err::public_not_present`;
-    var val3: int = input3!.loadUint(256);
-    var (input4: slice?, ok4: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 4);
-    assert(ok4) throw `verifier::err::public_not_present`;
-    var val4: int = input4!.loadUint(256);
-    var (input5: slice?, ok5: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 5);
-    assert(ok5) throw `verifier::err::public_not_present`;
-    var val5: int = input5!.loadUint(256);
-    var (input6: slice?, ok6: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 6);
-    assert(ok6) throw `verifier::err::public_not_present`;
-    var val6: int = input6!.loadUint(256);
-    var (input7: slice?, ok7: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 7);
-    assert(ok7) throw `verifier::err::public_not_present`;
-    var val7: int = input7!.loadUint(256);
-    var (input8: slice?, ok8: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 8);
-    assert(ok8) throw `verifier::err::public_not_present`;
-    var val8: int = input8!.loadUint(256);
-    var (input9: slice?, ok9: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 9);
-    assert(ok9) throw `verifier::err::public_not_present`;
-    var val9: int = input9!.loadUint(256);
-    var (input10: slice?, ok10: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 10);
-    assert(ok10) throw `verifier::err::public_not_present`;
-    var val10: int = input10!.loadUint(256);
-    var (input11: slice?, ok11: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 11);
-    assert(ok11) throw `verifier::err::public_not_present`;
-    var val11: int = input11!.loadUint(256);
-    var (input12: slice?, ok12: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 12);
-    assert(ok12) throw `verifier::err::public_not_present`;
-    var val12: int = input12!.loadUint(256);
-    var (input13: slice?, ok13: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 13);
-    assert(ok13) throw `verifier::err::public_not_present`;
-    var val13: int = input13!.loadUint(256);
-    var (input14: slice?, ok14: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 14);
-    assert(ok14) throw `verifier::err::public_not_present`;
-    var val14: int = input14!.loadUint(256);
-    var (input15: slice?, ok15: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 15);
-    assert(ok15) throw `verifier::err::public_not_present`;
-    var val15: int = input15!.loadUint(256);
-    var (input16: slice?, ok16: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 16);
-    assert(ok16) throw `verifier::err::public_not_present`;
-    var val16: int = input16!.loadUint(256);
-    var (input17: slice?, ok17: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 17);
-    assert(ok17) throw `verifier::err::public_not_present`;
-    var val17: int = input17!.loadUint(256);
-    var (input18: slice?, ok18: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 18);
-    assert(ok18) throw `verifier::err::public_not_present`;
-    var val18: int = input18!.loadUint(256);
-    var (input19: slice?, ok19: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 19);
-    assert(ok19) throw `verifier::err::public_not_present`;
-    var val19: int = input19!.loadUint(256);
-    var (input20: slice?, ok20: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 20);
-    assert(ok20) throw `verifier::err::public_not_present`;
-    var val20: int = input20!.loadUint(256);
-    var (input21: slice?, ok21: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 21);
-    assert(ok21) throw `verifier::err::public_not_present`;
-    var val21: int = input21!.loadUint(256);
-    var (input22: slice?, ok22: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 22);
-    assert(ok22) throw `verifier::err::public_not_present`;
-    var val22: int = input22!.loadUint(256);
-    var (input23: slice?, ok23: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 23);
-    assert(ok23) throw `verifier::err::public_not_present`;
-    var val23: int = input23!.loadUint(256);
-    var (input24: slice?, ok24: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 24);
-    assert(ok24) throw `verifier::err::public_not_present`;
-    var val24: int = input24!.loadUint(256);
-    var (input25: slice?, ok25: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 25);
-    assert(ok25) throw `verifier::err::public_not_present`;
-    var val25: int = input25!.loadUint(256);
-    var (input26: slice?, ok26: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 26);
-    assert(ok26) throw `verifier::err::public_not_present`;
-    var val26: int = input26!.loadUint(256);
-    var (input27: slice?, ok27: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 27);
-    assert(ok27) throw `verifier::err::public_not_present`;
-    var val27: int = input27!.loadUint(256);
-    var (input28: slice?, ok28: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 28);
-    assert(ok28) throw `verifier::err::public_not_present`;
-    var val28: int = input28!.loadUint(256);
-    var (input29: slice?, ok29: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 29);
-    assert(ok29) throw `verifier::err::public_not_present`;
-    var val29: int = input29!.loadUint(256);
-    var (input30: slice?, ok30: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 30);
-    assert(ok30) throw `verifier::err::public_not_present`;
-    var val30: int = input30!.loadUint(256);
-    var (input31: slice?, ok31: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 31);
-    assert(ok31) throw `verifier::err::public_not_present`;
-    var val31: int = input31!.loadUint(256);
-    var (input32: slice?, ok32: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 32);
-    assert(ok32) throw `verifier::err::public_not_present`;
-    var val32: int = input32!.loadUint(256);
-    var (input33: slice?, ok33: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 33);
-    assert(ok33) throw `verifier::err::public_not_present`;
-    var val33: int = input33!.loadUint(256);
-    var (input34: slice?, ok34: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 34);
-    assert(ok34) throw `verifier::err::public_not_present`;
-    var val34: int = input34!.loadUint(256);
-    var (input35: slice?, ok35: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 35);
-    assert(ok35) throw `verifier::err::public_not_present`;
-    var val35: int = input35!.loadUint(256);
-    var (input36: slice?, ok36: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 36);
-    assert(ok36) throw `verifier::err::public_not_present`;
-    var val36: int = input36!.loadUint(256);
-    var (input37: slice?, ok37: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 37);
-    assert(ok37) throw `verifier::err::public_not_present`;
-    var val37: int = input37!.loadUint(256);
-    var (input38: slice?, ok38: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 38);
-    assert(ok38) throw `verifier::err::public_not_present`;
-    var val38: int = input38!.loadUint(256);
-    var (input39: slice?, ok39: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 39);
-    assert(ok39) throw `verifier::err::public_not_present`;
-    var val39: int = input39!.loadUint(256);
-    var (input40: slice?, ok40: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 40);
-    assert(ok40) throw `verifier::err::public_not_present`;
-    var val40: int = input40!.loadUint(256);
-    var (input41: slice?, ok41: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 41);
-    assert(ok41) throw `verifier::err::public_not_present`;
-    var val41: int = input41!.loadUint(256);
-    var (input42: slice?, ok42: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 42);
-    assert(ok42) throw `verifier::err::public_not_present`;
-    var val42: int = input42!.loadUint(256);
-    var (input43: slice?, ok43: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 43);
-    assert(ok43) throw `verifier::err::public_not_present`;
-    var val43: int = input43!.loadUint(256);
-    var (input44: slice?, ok44: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 44);
-    assert(ok44) throw `verifier::err::public_not_present`;
-    var val44: int = input44!.loadUint(256);
-    var (input45: slice?, ok45: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 45);
-    assert(ok45) throw `verifier::err::public_not_present`;
-    var val45: int = input45!.loadUint(256);
-    var (input46: slice?, ok46: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 46);
-    assert(ok46) throw `verifier::err::public_not_present`;
-    var val46: int = input46!.loadUint(256);
-    var (input47: slice?, ok47: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 47);
-    assert(ok47) throw `verifier::err::public_not_present`;
-    var val47: int = input47!.loadUint(256);
-    var (input48: slice?, ok48: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 48);
-    assert(ok48) throw `verifier::err::public_not_present`;
-    var val48: int = input48!.loadUint(256);
-    var (input49: slice?, ok49: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 49);
-    assert(ok49) throw `verifier::err::public_not_present`;
-    var val49: int = input49!.loadUint(256);
-    var (input50: slice?, ok50: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 50);
-    assert(ok50) throw `verifier::err::public_not_present`;
-    var val50: int = input50!.loadUint(256);
-    var (input51: slice?, ok51: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 51);
-    assert(ok51) throw `verifier::err::public_not_present`;
-    var val51: int = input51!.loadUint(256);
-    var (input52: slice?, ok52: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 52);
-    assert(ok52) throw `verifier::err::public_not_present`;
-    var val52: int = input52!.loadUint(256);
-    var (input53: slice?, ok53: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 53);
-    assert(ok53) throw `verifier::err::public_not_present`;
-    var val53: int = input53!.loadUint(256);
-    var (input54: slice?, ok54: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 54);
-    assert(ok54) throw `verifier::err::public_not_present`;
-    var val54: int = input54!.loadUint(256);
-    var (input55: slice?, ok55: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 55);
-    assert(ok55) throw `verifier::err::public_not_present`;
-    var val55: int = input55!.loadUint(256);
-    var (input56: slice?, ok56: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 56);
-    assert(ok56) throw `verifier::err::public_not_present`;
-    var val56: int = input56!.loadUint(256);
-    var (input57: slice?, ok57: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 57);
-    assert(ok57) throw `verifier::err::public_not_present`;
-    var val57: int = input57!.loadUint(256);
-    var (input58: slice?, ok58: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 58);
-    assert(ok58) throw `verifier::err::public_not_present`;
-    var val58: int = input58!.loadUint(256);
-    var (input59: slice?, ok59: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 59);
-    assert(ok59) throw `verifier::err::public_not_present`;
-    var val59: int = input59!.loadUint(256);
-    var (input60: slice?, ok60: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 60);
-    assert(ok60) throw `verifier::err::public_not_present`;
-    var val60: int = input60!.loadUint(256);
-    var (input61: slice?, ok61: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 61);
-    assert(ok61) throw `verifier::err::public_not_present`;
-    var val61: int = input61!.loadUint(256);
-    var (input62: slice?, ok62: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 62);
-    assert(ok62) throw `verifier::err::public_not_present`;
-    var val62: int = input62!.loadUint(256);
-    var (input63: slice?, ok63: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 63);
-    assert(ok63) throw `verifier::err::public_not_present`;
-    var val63: int = input63!.loadUint(256);
-    var (input64: slice?, ok64: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 64);
-    assert(ok64) throw `verifier::err::public_not_present`;
-    var val64: int = input64!.loadUint(256);
-    var (input65: slice?, ok65: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 65);
-    assert(ok65) throw `verifier::err::public_not_present`;
-    var val65: int = input65!.loadUint(256);
-    var (input66: slice?, ok66: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 66);
-    assert(ok66) throw `verifier::err::public_not_present`;
-    var val66: int = input66!.loadUint(256);
-    var (input67: slice?, ok67: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 67);
-    assert(ok67) throw `verifier::err::public_not_present`;
-    var val67: int = input67!.loadUint(256);
-    var (input68: slice?, ok68: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 68);
-    assert(ok68) throw `verifier::err::public_not_present`;
-    var val68: int = input68!.loadUint(256);
-    var (input69: slice?, ok69: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 69);
-    assert(ok69) throw `verifier::err::public_not_present`;
-    var val69: int = input69!.loadUint(256);
-    var (input70: slice?, ok70: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 70);
-    assert(ok70) throw `verifier::err::public_not_present`;
-    var val70: int = input70!.loadUint(256);
-    var (input71: slice?, ok71: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 71);
-    assert(ok71) throw `verifier::err::public_not_present`;
-    var val71: int = input71!.loadUint(256);
-    var (input72: slice?, ok72: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 72);
-    assert(ok72) throw `verifier::err::public_not_present`;
-    var val72: int = input72!.loadUint(256);
-    var (input73: slice?, ok73: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 73);
-    assert(ok73) throw `verifier::err::public_not_present`;
-    var val73: int = input73!.loadUint(256);
-    var (input74: slice?, ok74: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 74);
-    assert(ok74) throw `verifier::err::public_not_present`;
-    var val74: int = input74!.loadUint(256);
-    var (input75: slice?, ok75: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 75);
-    assert(ok75) throw `verifier::err::public_not_present`;
-    var val75: int = input75!.loadUint(256);
-    var (input76: slice?, ok76: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 76);
-    assert(ok76) throw `verifier::err::public_not_present`;
-    var val76: int = input76!.loadUint(256);
-    var (input77: slice?, ok77: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 77);
-    assert(ok77) throw `verifier::err::public_not_present`;
-    var val77: int = input77!.loadUint(256);
-    var (input78: slice?, ok78: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 78);
-    assert(ok78) throw `verifier::err::public_not_present`;
-    var val78: int = input78!.loadUint(256);
-    var (input79: slice?, ok79: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 79);
-    assert(ok79) throw `verifier::err::public_not_present`;
-    var val79: int = input79!.loadUint(256);
-    var (input80: slice?, ok80: bool) = pubInputs.uDictDeleteAndGet(`verifier::publicInputKeyLen`, 80);
-    assert(ok80) throw `verifier::err::public_not_present`;
-    var val80: int = input80!.loadUint(256);
+  // loop over full 7-sized batches using uDictGet (non-destructive)
+  var done: int = 0;
+  var full: int = `verifier::nPublic` / 7;
+  var rem:  int = `verifier::nPublic` % 7;
 
-    // убеждаемся, что в dict ничего не осталось
-    assert((pubInputs == null)) throw `verifier::err::too_many_publics`;
+  var haveCpub: bool = false;
+  var cpub: slice = `verifier::IC0`; // replaced on first batch
 
-    // собираем cpub через batched MULTIEXP и суммирование
-    var cpub: slice = blsG1Multiexp_7(
-        `verifier::IC1`, val0,
-        `verifier::IC2`, val1,
-        `verifier::IC3`, val2,
-        `verifier::IC4`, val3,
-        `verifier::IC5`, val4,
-        `verifier::IC6`, val5,
-        `verifier::IC7`, val6
-        , 7
+  while (full > 0) {
+    var in0: slice?; var ok0: bool; var v0: int;
+    var in1: slice?; var ok1: bool; var v1: int;
+    var in2: slice?; var ok2: bool; var v2: int;
+    var in3: slice?; var ok3: bool; var v3: int;
+    var in4: slice?; var ok4: bool; var v4: int;
+    var in5: slice?; var ok5: bool; var v5: int;
+    var in6: slice?; var ok6: bool; var v6: int;
+
+    (in0, ok0) = pubInputs.uDictGet(`verifier::publicInputKeyLen`, done + 0); assert(ok0) throw `verifier::err::public_not_present`; v0 = in0!.loadUint(256);
+    (in1, ok1) = pubInputs.uDictGet(`verifier::publicInputKeyLen`, done + 1); assert(ok1) throw `verifier::err::public_not_present`; v1 = in1!.loadUint(256);
+    (in2, ok2) = pubInputs.uDictGet(`verifier::publicInputKeyLen`, done + 2); assert(ok2) throw `verifier::err::public_not_present`; v2 = in2!.loadUint(256);
+    (in3, ok3) = pubInputs.uDictGet(`verifier::publicInputKeyLen`, done + 3); assert(ok3) throw `verifier::err::public_not_present`; v3 = in3!.loadUint(256);
+    (in4, ok4) = pubInputs.uDictGet(`verifier::publicInputKeyLen`, done + 4); assert(ok4) throw `verifier::err::public_not_present`; v4 = in4!.loadUint(256);
+    (in5, ok5) = pubInputs.uDictGet(`verifier::publicInputKeyLen`, done + 5); assert(ok5) throw `verifier::err::public_not_present`; v5 = in5!.loadUint(256);
+    (in6, ok6) = pubInputs.uDictGet(`verifier::publicInputKeyLen`, done + 6); assert(ok6) throw `verifier::err::public_not_present`; v6 = in6!.loadUint(256);
+
+    var tmp: slice = blsG1Multiexp_7(
+      ic(done + 1), v0,
+      ic(done + 2), v1,
+      ic(done + 3), v2,
+      ic(done + 4), v3,
+      ic(done + 5), v4,
+      ic(done + 6), v5,
+      ic(done + 7), v6,
+      7
     );
-    cpub = blsG1Add(cpub, blsG1Multiexp_7(
-        `verifier::IC8`, val7,
-        `verifier::IC9`, val8,
-        `verifier::IC10`, val9,
-        `verifier::IC11`, val10,
-        `verifier::IC12`, val11,
-        `verifier::IC13`, val12,
-        `verifier::IC14`, val13
-        , 7
-    ));
-    cpub = blsG1Add(cpub, blsG1Multiexp_7(
-        `verifier::IC15`, val14,
-        `verifier::IC16`, val15,
-        `verifier::IC17`, val16,
-        `verifier::IC18`, val17,
-        `verifier::IC19`, val18,
-        `verifier::IC20`, val19,
-        `verifier::IC21`, val20
-        , 7
-    ));
-    cpub = blsG1Add(cpub, blsG1Multiexp_7(
-        `verifier::IC22`, val21,
-        `verifier::IC23`, val22,
-        `verifier::IC24`, val23,
-        `verifier::IC25`, val24,
-        `verifier::IC26`, val25,
-        `verifier::IC27`, val26,
-        `verifier::IC28`, val27
-        , 7
-    ));
-    cpub = blsG1Add(cpub, blsG1Multiexp_7(
-        `verifier::IC29`, val28,
-        `verifier::IC30`, val29,
-        `verifier::IC31`, val30,
-        `verifier::IC32`, val31,
-        `verifier::IC33`, val32,
-        `verifier::IC34`, val33,
-        `verifier::IC35`, val34
-        , 7
-    ));
-    cpub = blsG1Add(cpub, blsG1Multiexp_7(
-        `verifier::IC36`, val35,
-        `verifier::IC37`, val36,
-        `verifier::IC38`, val37,
-        `verifier::IC39`, val38,
-        `verifier::IC40`, val39,
-        `verifier::IC41`, val40,
-        `verifier::IC42`, val41
-        , 7
-    ));
-    cpub = blsG1Add(cpub, blsG1Multiexp_7(
-        `verifier::IC43`, val42,
-        `verifier::IC44`, val43,
-        `verifier::IC45`, val44,
-        `verifier::IC46`, val45,
-        `verifier::IC47`, val46,
-        `verifier::IC48`, val47,
-        `verifier::IC49`, val48
-        , 7
-    ));
-    cpub = blsG1Add(cpub, blsG1Multiexp_7(
-        `verifier::IC50`, val49,
-        `verifier::IC51`, val50,
-        `verifier::IC52`, val51,
-        `verifier::IC53`, val52,
-        `verifier::IC54`, val53,
-        `verifier::IC55`, val54,
-        `verifier::IC56`, val55
-        , 7
-    ));
-    cpub = blsG1Add(cpub, blsG1Multiexp_7(
-        `verifier::IC57`, val56,
-        `verifier::IC58`, val57,
-        `verifier::IC59`, val58,
-        `verifier::IC60`, val59,
-        `verifier::IC61`, val60,
-        `verifier::IC62`, val61,
-        `verifier::IC63`, val62
-        , 7
-    ));
-    cpub = blsG1Add(cpub, blsG1Multiexp_7(
-        `verifier::IC64`, val63,
-        `verifier::IC65`, val64,
-        `verifier::IC66`, val65,
-        `verifier::IC67`, val66,
-        `verifier::IC68`, val67,
-        `verifier::IC69`, val68,
-        `verifier::IC70`, val69
-        , 7
-    ));
-    cpub = blsG1Add(cpub, blsG1Multiexp_7(
-        `verifier::IC71`, val70,
-        `verifier::IC72`, val71,
-        `verifier::IC73`, val72,
-        `verifier::IC74`, val73,
-        `verifier::IC75`, val74,
-        `verifier::IC76`, val75,
-        `verifier::IC77`, val76
-        , 7
-    ));
-    cpub = blsG1Add(cpub, blsG1Multiexp_4(
-        `verifier::IC78`, val77,
-        `verifier::IC79`, val78,
-        `verifier::IC80`, val79,
-        `verifier::IC81`, val80
-        , 4
-    ));
-
-    // добавляем свободный член IC0
-    cpub = blsG1Add(cpub, `verifier::IC0`);
-
-    // pairing check
-    var piANeg: slice = blsG1Neg(piA);
-    var a: int = blsPairing(
-        cpub,                 `verifier::vk_gamma_2`,
-        piANeg,               piB,
-        piC,                  `verifier::vk_delta_2`,
-        `verifier::vk_alpha_1`, `verifier::vk_beta_2`,
-        4
-    );
-
-    if (a == 0) {
-        res = 0;
+    if (!haveCpub) {
+      cpub = tmp;
+      haveCpub = true;
     } else {
-        res = 1;
+      cpub = blsG1Add(cpub, tmp);
     }
-    return res;
+    done += 7;
+    full -= 1;
+  }
+
+    // tail batch (exact remainder handling)
+    if (rem == 4) {
+        var inT0: slice?; var okT0: bool; var vT0: int;
+    (inT0, okT0) = pubInputs.uDictGet(`verifier::publicInputKeyLen`, done + 0);
+    assert(okT0) throw `verifier::err::public_not_present`;
+    vT0 = inT0!.loadUint(256);
+        var inT1: slice?; var okT1: bool; var vT1: int;
+    (inT1, okT1) = pubInputs.uDictGet(`verifier::publicInputKeyLen`, done + 1);
+    assert(okT1) throw `verifier::err::public_not_present`;
+    vT1 = inT1!.loadUint(256);
+        var inT2: slice?; var okT2: bool; var vT2: int;
+    (inT2, okT2) = pubInputs.uDictGet(`verifier::publicInputKeyLen`, done + 2);
+    assert(okT2) throw `verifier::err::public_not_present`;
+    vT2 = inT2!.loadUint(256);
+        var inT3: slice?; var okT3: bool; var vT3: int;
+    (inT3, okT3) = pubInputs.uDictGet(`verifier::publicInputKeyLen`, done + 3);
+    assert(okT3) throw `verifier::err::public_not_present`;
+    vT3 = inT3!.loadUint(256);
+        var tail: slice = blsG1Multiexp_4(
+            ic(done + 1), vT0,
+            ic(done + 2), vT1,
+            ic(done + 3), vT2,
+            ic(done + 4), vT3
+            , 4
+    );
+    if (!haveCpub) {
+      cpub = tail;
+      haveCpub = true;
+    } else {
+      cpub = blsG1Add(cpub, tail);
+    }
+    done += 4;
+  }
+    
+  // add constant term
+  cpub = blsG1Add(cpub, `verifier::IC0`);
+
+  // pairing check
+  var piANeg: slice = blsG1Neg(piA);
+  var a: int = blsPairing(
+    cpub,                 `verifier::vk_gamma_2`,
+    piANeg,               piB,
+    piC,                  `verifier::vk_delta_2`,
+    `verifier::vk_alpha_1`, `verifier::vk_beta_2`,
+    4
+  );
+
+  res = (a == 0) ? 0 : 1;
+  return res;
 }
 
 fun verify(inMsgBody: slice): int {
-    var piA: slice = inMsgBody.loadP1();
-    var piB: slice = inMsgBody.loadP2();
-    var piC: slice = inMsgBody.loadP1();
-    var pubInputs = inMsgBody.loadDict();
-
-    return groth16Verify(piA, piB, piC, pubInputs);
+  var piA: slice = inMsgBody.loadP1();
+  var piB: slice = inMsgBody.loadP2();
+  var piC: slice = inMsgBody.loadP1();
+  var pubInputs = inMsgBody.loadDict();
+  return groth16Verify(piA, piB, piC, pubInputs);
 }
 
 // in the future, use: fun onInternalMessage(in: InMessage)
 fun onInternalMessage(myBalance: int, msgValue: int, inMsgFull: cell, inMsgBody: slice) {
-    if (inMsgBody.isEmpty()) {
-        return;
-    }
-    var cs: slice = inMsgFull.beginParse();
-    var flags: int = cs.loadUint(4);
-    if (flags & 1) {
-        return;
-    }
-    var op: int = inMsgBody.loadUint(32);
-    var queryId: int = inMsgBody.loadUint(64);
+  if (inMsgBody.isEmpty()) {
+    return;
+  }
+  var cs: slice = inMsgFull.beginParse();
+  var flags: int = cs.loadUint(4);
+  if (flags & 1) {
+    return;
+  }
+  var op: int = inMsgBody.loadUint(32);
+  var queryId: int = inMsgBody.loadUint(64);
 
-    if (op == OP_VERIFY) {
-        var res: int = verify(inMsgBody);
-        return;
-    }
-    throw 0xffff;
+  if (op == OP_VERIFY) {
+    var res: int = verify(inMsgBody);
+    return;
+  }
+  throw 0xffff;
 }
 
 get fun get_verify(
-    piA: slice,
-    piB: slice,
-    piC: slice,
-    pubInputs: slice
+  piA: slice,
+  piB: slice,
+  piC: slice,
+  pubInputs: slice
 ): int {
-    return groth16Verify(
-        piA,
-        piB,
-        piC,
-        pubInputs.loadDict()
-    );
+  return groth16Verify(
+    piA,
+    piB,
+    piC,
+    pubInputs.loadDict()
+  );
 }
+x

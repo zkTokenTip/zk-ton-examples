@@ -15,14 +15,14 @@ const wtnsPath = path.join(__dirname, '../circuits/Sudoku/', 'Sudoku.wtns');
 const zkeyPath = path.join(__dirname, '../circuits/Sudoku/', 'Sudoku_final.zkey');
 const verificationKey = require('../circuits/Sudoku/verification_key.json');
 
-// npx blueprint test Verifier_sudoku_func
-describe('Verifier_sudoku_func', () => {
+// npx blueprint test Verifier_sudoku_tolk
+describe('Verifier_sudoku_tolk', () => {
     let code: Cell;
-    let GAS_LOG = new GasLogAndSave('Verifier_sudoku_func');
+    let GAS_LOG = new GasLogAndSave('Verifier_sudoku_tolk');
 
     beforeAll(async () => {
-        code = await compile('Verifier_sudoku_func');
-        GAS_LOG.rememberBocSize('Verifier_sudoku_func', code);
+        code = await compile('Verifier_sudoku_tolk');
+        GAS_LOG.rememberBocSize('Verifier_sudoku_tolk', code);
     });
 
     afterAll(() => {
@@ -71,7 +71,7 @@ describe('Verifier_sudoku_func', () => {
             pi_b,
             pi_c,
             pubInputs,
-            value: toNano('0.3'),
+            value: toNano('0.4'),
         });
 
         expect(verifyResult.transactions).toHaveTransaction({
