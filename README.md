@@ -5,6 +5,8 @@ It demonstrates how to integrate zero-knowledge proofs from Circom into the TON 
 
 Gas cost tests have been performed, and the results are located in the `bench-snapshots` directory.
 
+Example usage of verifiers in a TON project can be found at: [zkTokenTip/zkJetton (Tact)](https://github.com/zkTokenTip/zkJetton)
+
 ## Project structure
 
 - `contracts` - source code of all the smart contracts of the project and their dependencies.
