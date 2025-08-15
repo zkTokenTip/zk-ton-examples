@@ -22,9 +22,9 @@
             "mode": "full"
         },
         {
-            "name": "Verifier_reg_tact",
-            "path": "contracts\\verifier_reg.tact",
-            "output": "build\\Verifier_reg_tact",
+            "name": "Verifier_gnark_tact",
+            "path": "contracts\\verifier_gnark.tact",
+            "output": "build\\Verifier_gnark_tact",
             "options": {
                 "debug": false,
                 "external": false
