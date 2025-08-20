@@ -87,7 +87,7 @@ npx export-ton-verifier ./circuits/Sudoku/Sudoku_final.zkey ./contracts/verifier
 ```
 
 
-### MiMC hash (Gnark)
+### Cubic (Gnark)
 
 You can generate a smart contract that verifies zk-SNARK proofs using a verification key.
 
@@ -100,5 +100,7 @@ Then `proof.json` can be used to test and validate the contract logic.
 
 
 ```sh
-npx export-ton-verifier ./circuits/Gnark/verification_key.json ./contracts/verifier_gnark.tact --tact
+npx export-ton-verifier ./circuits/Cubic/verification_key.json ./contracts/verifier_cubic.fc --func
+npx export-ton-verifier ./circuits/Cubic/verification_key.json ./contracts/verifier_cubic.tolk --tolk
+npx export-ton-verifier ./circuits/Cubic/verification_key.json ./contracts/verifier_cubic.tact --tact
 ```

@@ -22,15 +22,14 @@
             "mode": "full"
         },
         {
-            "name": "Verifier_gnark_tact",
-            "path": "contracts\\verifier_gnark.tact",
-            "output": "build\\Verifier_gnark_tact",
+            "name": "Verifier_cubic_tact",
+            "path": "contracts\\verifier_cubic.tact",
+            "output": "build\\Verifier_cubic_tact",
             "options": {
                 "debug": false,
                 "external": false
             },
             "mode": "full"
         }
-
     ]
 }

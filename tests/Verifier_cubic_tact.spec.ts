@@ -5,20 +5,20 @@ import '@ton/test-utils';
 import * as snarkjs from 'snarkjs';
 
 import { GasLogAndSave } from './gas-logger';
-import { Verifier } from '../build/Verifier_gnark_tact/Verifier_gnark_tact_Verifier';
+import { Verifier } from '../build/Verifier_cubic_tact/Verifier_cubic_tact_Verifier';
 
 import { dictFromInputList, groth16CompressProof } from 'export-ton-verifier';
 
-const verificationKey = require('../circuits/Gnark/verification_key.json');
-const proofFile = require('../circuits/Gnark/proof.json');
+const verificationKey = require('../circuits/Cubic/verification_key.json');
+const proofFile = require('../circuits/Cubic/proof.json');
 
-// npx blueprint test Verifier_gnark_tact
-describe('Verifier_gnark_tact', () => {
+// npx blueprint test Verifier_cubic_tact
+describe('Verifier_cubic_tact', () => {
     let blockchain: Blockchain;
     let deployer: SandboxContract<TreasuryContract>;
     let verifier: SandboxContract<Verifier>;
 
-    let GAS_LOG = new GasLogAndSave('Verifier_gnark_tact');
+    let GAS_LOG = new GasLogAndSave('Verifier_cubic_tact');
 
     beforeEach(async () => {
         blockchain = await Blockchain.create();
