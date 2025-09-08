@@ -373,6 +373,7 @@ fun onInternalMessage(myBalance: int, msgValue: int, inMsgFull: cell, inMsgBody:
 
   if (op == OP_VERIFY) {
     var res: int = verify(inMsgBody);
+    assert(res == 1, 300);
     return;
   }
   throw 0xffff;

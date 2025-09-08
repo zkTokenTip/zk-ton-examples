@@ -6,7 +6,7 @@ import * as snarkjs from 'snarkjs';
 import path from 'path';
 
 import { GasLogAndSave } from './gas-logger';
-import { Verifier } from '../build/Verifier_sudoku_tact/tact_Verifier';
+import { Verifier } from '../build/Verifier_sudoku_tact/Verifier_sudoku_tact_Verifier';
 
 import { dictFromInputList, groth16CompressProof } from 'export-ton-verifier';
 

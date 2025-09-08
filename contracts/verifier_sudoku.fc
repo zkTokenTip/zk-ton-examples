@@ -572,6 +572,8 @@ slice bls_g1_multiexp_4(
 
     if (op == op::verify) {
         int res = verify(in_msg_body);
+
+        throw_unless(300, res == 1);
         return ();
     }
     throw(0xffff);

@@ -49,6 +49,8 @@ contract Verifier with Deployable {
 
   receive(msg: Verify) {
     let res = self.groth16Verify(msg.piA, msg.piB, msg.piC, msg.pubInputs);
+
+    nativeThrowUnless(300, res);
   }
 
   fun groth16Verify(
