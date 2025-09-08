@@ -128,6 +128,7 @@ const IC81: Slice = rawSlice("aadc70ebe1233452b44683fc90c5823bc014d4ae880a947a5d
 const ERR_PUBLIC_NOT_PRESENT: Int = 257;
 const ERR_TOO_MANY_PUBLICS: Int = 258;
 const ERR_INDEX_OUT_OF_RANGE: Int = 259;
+const ERR_WRONG_PROOF: Int = 260;
 
 // IC selection helper by index: 1 -> IC1, 2 -> IC2, ...
 fun ic(idx: Int): Slice {
@@ -228,8 +229,7 @@ contract Verifier with Deployable {
 
   receive(msg: Verify) {
     let res = self.groth16Verify(msg.piA, msg.piB, msg.piC, msg.pubInputs);
-    
-    nativeThrowUnless(300, res);
+    nativeThrowUnless(ERR_WRONG_PROOF, res);
   }
 
   fun groth16Verify(

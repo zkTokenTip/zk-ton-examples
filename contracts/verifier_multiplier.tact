@@ -35,6 +35,7 @@ const IC1: Slice = rawSlice("932b7a28b994b701aa1a4c06a4f3f369cbb0b4ddfc37c380679
 const ERR_PUBLIC_NOT_PRESENT: Int = 257;
 const ERR_TOO_MANY_PUBLICS: Int = 258;
 const ERR_INDEX_OUT_OF_RANGE: Int = 259;
+const ERR_WRONG_PROOF: Int = 260;
 
 
 // Message definition
@@ -49,8 +50,7 @@ contract Verifier with Deployable {
 
   receive(msg: Verify) {
     let res = self.groth16Verify(msg.piA, msg.piB, msg.piC, msg.pubInputs);
-
-    nativeThrowUnless(300, res);
+    nativeThrowUnless(ERR_WRONG_PROOF, res);
   }
 
   fun groth16Verify(

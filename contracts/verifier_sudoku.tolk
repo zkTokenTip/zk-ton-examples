@@ -105,6 +105,7 @@ const `verifier::nPublic` = 81
 const `verifier::err::public_not_present` = 257
 const `verifier::err::too_many_publics` = 258
 const `verifier::err::index_out_of_range` = 259
+const `verifier::err::wrong_proof` = 260
 
 // BLS intrinsics
 @pure 
@@ -251,8 +252,7 @@ fun groth16Verify(
   piB: slice,
   piC: slice,
   pubInputs: dict
-): int {
-  var res: int = 0;
+): bool {
 
   // loop over full 7-sized batches using uDictGet (non-destructive)
   var done: int = 0;
@@ -346,11 +346,10 @@ fun groth16Verify(
     4
   );
 
-  res = (a == 0) ? 0 : 1;
-  return res;
+  return (a == 0) ? false : true;
 }
 
-fun verify(inMsgBody: slice): int {
+fun verify(inMsgBody: slice): bool {
   var piA: slice = inMsgBody.loadP1();
   var piB: slice = inMsgBody.loadP2();
   var piC: slice = inMsgBody.loadP1();
@@ -372,8 +371,8 @@ fun onInternalMessage(myBalance: int, msgValue: int, inMsgFull: cell, inMsgBody:
   var queryId: int = inMsgBody.loadUint(64);
 
   if (op == OP_VERIFY) {
-    var res: int = verify(inMsgBody);
-    assert(res == 1, 300);
+    var res: bool = verify(inMsgBody);
+    assert(res, `verifier::err::wrong_proof`);
     return;
   }
   throw 0xffff;
@@ -384,7 +383,7 @@ get fun get_verify(
   piB: slice,
   piC: slice,
   pubInputs: slice
-): int {
+): bool {
   return groth16Verify(
     piA,
     piB,

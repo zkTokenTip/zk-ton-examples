@@ -104,6 +104,8 @@ const int verifier::nPublic = 81;
 ;; error codes
 const int verifier::err::public_not_present = 257;
 const int verifier::err::too_many_publics = 258;
+const int verifier::err::index_out_of_range = 259;
+const int verifier::err::wrong_proof = 260;
 
 ;; bls intrinsics
 slice bls_g1_add(slice x, slice y) asm "BLS_G1_ADD";
@@ -572,8 +574,7 @@ slice bls_g1_multiexp_4(
 
     if (op == op::verify) {
         int res = verify(in_msg_body);
-
-        throw_unless(300, res == 1);
+        throw_unless(verifier::err::wrong_proof, res == 1);
         return ();
     }
     throw(0xffff);
