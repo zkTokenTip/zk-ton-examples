@@ -30,6 +30,16 @@
                 "external": false
             },
             "mode": "full"
+        },
+        {
+            "name": "Verifier_ark_tact",
+            "path": "contracts\\verifier_ark.tact",
+            "output": "build\\Verifier_ark_tact",
+            "options": {
+                "debug": false,
+                "external": false
+            },
+            "mode": "full"
         }
     ]
 }
