@@ -12,7 +12,7 @@ import { dictFromInputList, groth16CompressProof } from 'export-ton-verifier';
 const verificationKey = require('../circuits/Arkworks/MulCircuit/json/verification_key.json');
 const proofFile = require('../circuits/Arkworks/MulCircuit/json/proof.json');
 
-// npx blueprint test Verifier_ark_tact
+// npx blueprint test Verifier_ark
 describe('Verifier_ark_tact', () => {
     let blockchain: Blockchain;
     let deployer: SandboxContract<TreasuryContract>;

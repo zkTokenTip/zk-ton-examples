@@ -138,6 +138,6 @@ npx export-ton-verifier ./circuits/Arkworks/MulCircuit/json/verification_key.jso
 npx export-ton-verifier ./circuits/Arkworks/MulCircuit/json/verification_key.json ./contracts/verifier_ark.tolk --tolk
 
 # testing contracts
-npx blueorint build
+npx blueorint build --all
 npx blueprint test Verifier_ark
 ```
