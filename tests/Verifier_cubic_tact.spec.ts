@@ -9,8 +9,8 @@ import { Verifier } from '../build/Verifier_cubic_tact/Verifier_cubic_tact_Verif
 
 import { dictFromInputList, groth16CompressProof } from 'export-ton-verifier';
 
-const verificationKey = require('../circuits/Cubic/verification_key.json');
-const proofFile = require('../circuits/Cubic/proof.json');
+const verificationKey = require('../circuits/Cubic (gnark)/verification_key.json');
+const proofFile = require('../circuits/Cubic (gnark)/proof.json');
 
 // npx blueprint test Verifier_cubic_tact
 describe('Verifier_cubic_tact', () => {

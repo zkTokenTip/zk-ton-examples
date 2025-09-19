@@ -1,0 +1,149 @@
+#include "imports/stdlib.fc";
+
+;; ops
+const op::verify = "op::verify"c;
+
+;; sizes
+const int verifier::P1_SIZE = 48 * 8;
+const int verifier::P2_SIZE = 96 * 8;
+
+;; input constants (IC0 is the base term)
+const slice verifier::IC0 = "ac679fca56dd1954945e5d72e97f8c35232596926d6a60541173d0e46c0f8449b8e5430eaa2219ad42652ce1a0451be4"s;
+const slice verifier::IC1 = "8151fd5b7c8e9051a5a8d82f513fb3478fde4ec5b852c31019a44f07883b8f3d00987561848b9adf062e34e1e7add6f2"s;
+
+;; vk constants
+const slice verifier::vk_gamma_2 = "883db90348422eefcf5b4533663c58fa4d22bb3c33bc02e098ce629b2a818bdb07efe831f3940d0d138eb775d1f30b731273d54d06405b4c2286ee7cd1e4cd6e2285b4351bf5fcfe534032b169244e23d86866e40e16034b84cc3ae82c667119"s;
+const slice verifier::vk_delta_2 = "a27ade5cb53cd3062111148f87993c32479424a1ddfb7ef64c111bda40db93a3196f9d41a0c6b093a0c5c19c34f2101b17f9f08eceaa8805d91ef6f7b2202ea671d039810f7f92f22e0ea7a15958eec9a51def97c8e9e54fc4637a8e0afe3f7f"s;
+const slice verifier::vk_alpha_1 = "8730d8bce3fc01a778b45cc987da79fe6dc5769b011ab3198a3bc9e59ad44056559122ef5b1d5fec3a80bfe64682ffdd"s;
+const slice verifier::vk_beta_2  = "b9a837cedb35b8f789d2869f46ef16c74d5671710a86d62c6d686f560054fbc2b1417089bf5018457cd031b0db8b55bf0a09b13b270c4321eff2c202f787e8a4d0311a6a107fb017b1ace4ebd8744d4e1f1a7050e34660b77b907b54c0c95421"s;
+
+;; public input dict settings
+const int verifier::publicInputKeyLen = 32;
+const int verifier::nPublic = 1;
+
+;; error codes
+const int verifier::err::public_not_present = 257;
+const int verifier::err::too_many_publics = 258;
+const int verifier::err::index_out_of_range = 259;
+const int verifier::err::wrong_proof = 260;
+
+;; bls intrinsics
+slice bls_g1_add(slice x, slice y) asm "BLS_G1_ADD";
+slice bls_g1_neg(slice x) asm "BLS_G1_NEG";
+int bls_pairing(slice x1, slice y1, slice x2, slice y2, slice x3, slice y3, slice x4, slice y4, int n) asm "BLS_PAIRING";
+
+
+slice bls_g1_multiexp_1(
+    slice x1, int y1
+    , int n
+) asm "BLS_G1_MULTIEXP";
+
+(slice, slice) load_p1(slice body) impure {
+    cell c = body~load_ref();
+    slice s = c.begin_parse();
+    slice p1 = first_bits(s, verifier::P1_SIZE);
+    s~skip_bits(verifier::P1_SIZE);
+    return (s, p1);
+}
+
+(slice, slice) load_p2(slice body) impure {
+    cell c = body~load_ref();
+    slice s = c.begin_parse();
+    slice p2 = first_bits(s, verifier::P2_SIZE);
+    s~skip_bits(verifier::P2_SIZE);
+    return (s, p2);
+}
+
+(int) groth16Verify(
+    slice pi_a,
+    slice pi_b,
+    slice pi_c,
+    cell pubInputs
+) impure {
+    int res = 0;
+
+
+    ;; extract public inputs by keys 0..nPublic-1
+    (slice input0, int ok0) = pubInputs~udict_delete_get?(verifier::publicInputKeyLen, 0);
+    throw_unless(verifier::err::public_not_present, ok0);
+    int val0 = input0~load_uint(256);
+
+    ;; ensure the dict is now empty
+    throw_unless(verifier::err::too_many_publics, null?(pubInputs));
+
+    ;; assemble cpub via batched MULTIEXP and summation
+    slice cpub = bls_g1_multiexp_1(
+        verifier::IC1, val0
+        , 1
+    );
+
+    ;; add the free term IC0
+    cpub = bls_g1_add(cpub, verifier::IC0);
+
+    ;; pairing check
+    slice pi_a_neg = bls_g1_neg(pi_a);
+    int a = bls_pairing(
+        cpub,              verifier::vk_gamma_2,
+        pi_a_neg,          pi_b,
+        pi_c,              verifier::vk_delta_2,
+        verifier::vk_alpha_1, verifier::vk_beta_2,
+        4
+    );
+
+    if (a == 0) {
+        res = 0;
+    } else {
+        res = 1;
+    }
+    return (res);
+}
+
+(int) verify(
+    slice in_msg_body
+) impure {
+    slice pi_a = in_msg_body~load_p1();
+    slice pi_b = in_msg_body~load_p2();
+    slice pi_c = in_msg_body~load_p1();
+    var pubInputs = in_msg_body~load_dict();
+
+    return groth16Verify(
+        pi_a,
+        pi_b,
+        pi_c,
+        pubInputs
+    );
+}
+
+() recv_internal(int my_balance, int msg_value, cell in_msg_full, slice in_msg_body) impure {
+    if (in_msg_body.slice_empty?()) {
+        return ();
+    }
+    slice cs = in_msg_full.begin_parse();
+    int flags = cs~load_uint(4);
+    if (flags & 1) {
+        return ();
+    }
+    int op = in_msg_body~load_uint(32);
+    int query_id = in_msg_body~load_uint(64);
+
+    if (op == op::verify) {
+        int res = verify(in_msg_body);
+        throw_unless(verifier::err::wrong_proof, res == 1);
+        return ();
+    }
+    throw(0xffff);
+}
+
+int get_verify(
+    slice pi_a,
+    slice pi_b,
+    slice pi_c,
+    slice pubInputs
+) method_id {
+    return groth16Verify(
+        pi_a,
+        pi_b,
+        pi_c,
+        pubInputs~load_dict()
+    );
+}
